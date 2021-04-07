@@ -66,11 +66,13 @@
         template: `
           <section>
           <button v-show="!showForm" @click="displayForm">Add a recipe</button>
-          <form v-show="showForm">
+          <form v-show="showForm"
+                @submit.prevent="addRecipe">
             <label for="title">Enter a recipe name:</label>
             <input id="title"
                    name="title"
-                   v-model="title">
+                   required
+                   v-model="title"/>
             <label for="ingredients">Enter an ingredient:</label>
             <input id="ingredients"
                    name="ingredients"
@@ -98,10 +100,9 @@
             <input type="submit"
                    id="submit"
                    name="submit"
-                   value="Save recipe"
-                   @click.prevent="addRecipe">
+                   value="Save recipe">
             <article>
-              <h2>Your recipe:</h2>
+              <h2 v-show="title.length || ingredients.length">Your recipe:</h2>
               <h3>{{ title }}</h3>
               <ul>
                 <li v-for="(ingredient, index) in ingredients"
@@ -120,7 +121,7 @@
                 showRecipeSavedMsg: false,
                 title: '',
                 ingredientName: '',
-                ingredientQty: 0,
+                ingredientQty: '',
                 ingredientWeight: '',
                 ingredients: [],
                 weekday: '',
@@ -146,38 +147,37 @@
                     this.ingredientWeight = ''
                 }
             },
-            //todo gör det möjligt att ta bort recept
             //todo Gör så man kan välja vecka.
             addRecipe() {
-                let recipe = {
-                    title: this.title,
-                    ingredients: this.ingredients.slice(),
-                    weekday: this.weekday,
-                    image: `img/${this.weekday}.jpg`,
-                    alt: this.weekday,
-                    position: function () {
-                        switch (this.weekday) {
-                            case 'monday':
-                                return '2 / 1 / 3 / 2';
-                            case 'tuesday':
-                                return '2 / 2 / 3 / 3';
-                            case 'wednesday':
-                                return '2 / 3 / 3 / 4';
-                            case 'thursday':
-                                return '2 / 4 / 3 / 5';
-                            case 'friday':
-                                return '2 / 5 / 3 / 6';
-                            case 'saturday':
-                                return '2 / 6 / 3 / 7';
-                            case 'sunday':
-                                return '2 / 7 / 3 / 8';
+                    let recipe = {
+                        title: this.title,
+                        ingredients: this.ingredients.slice(),
+                        weekday: this.weekday,
+                        image: `img/${this.weekday}.jpg`,
+                        alt: this.weekday,
+                        position: function () {
+                            switch (this.weekday) {
+                                case 'monday':
+                                    return '2 / 1 / 3 / 2';
+                                case 'tuesday':
+                                    return '2 / 2 / 3 / 3';
+                                case 'wednesday':
+                                    return '2 / 3 / 3 / 4';
+                                case 'thursday':
+                                    return '2 / 4 / 3 / 5';
+                                case 'friday':
+                                    return '2 / 5 / 3 / 6';
+                                case 'saturday':
+                                    return '2 / 6 / 3 / 7';
+                                case 'sunday':
+                                    return '2 / 7 / 3 / 8';
+                            }
                         }
                     }
-                }
-                this.removeDuplicates(recipe)
-                this.clearForm()
+                    this.removeDuplicates(recipe)
+                    this.clearForm()
 
-                this.$emit('save-recipe', recipe)
+                    this.$emit('save-recipe', recipe)
             },
             removeDuplicates(recipe) {
                 for (let i = 0; i < this.recipes.length; i++) {
@@ -192,6 +192,7 @@
                 this.weekday = ''
                 this.showForm = false
                 this.showRecipeSavedMsg = true
+                this.showErrorMsg = false
             }
         }
     })
@@ -214,13 +215,17 @@
                   @click="selectedTitle = recipe.title"
                   :class="{'active-title': selectedTitle === recipe.title}">
                 <h3>{{ recipe.title }}</h3>
-                <ul>
-                  <li v-show="selectedTitle === recipe.title"
-                      v-for="(ingredient, index) in recipe.ingredients"
-                      :key="index">
-                    {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
-                  </li>
-                </ul>
+                <div v-show="selectedTitle === recipe.title">
+                  <input type="image" src="img/icon/outline_remove_circle_black_24dp.png" alt="delete" id="delete"
+                         @click="deleteRecipe">
+                  <ul>
+                    <li
+                        v-for="(ingredient, index) in recipe.ingredients"
+                        :key="index">
+                      {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
+                    </li>
+                  </ul>
+                </div>
               </li>
             </ul>
           </article>
@@ -239,6 +244,12 @@
             hideRecipes() {
                 this.showRecipes = false
                 this.selectedTitle = ''
+            },
+            deleteRecipe() {
+                if (confirm('Are you sure you want to delete recipe: ' + this.selectedTitle + '?')) {
+                    let pos = this.recipes.indexOf(this.selectedTitle)
+                    this.recipes.splice(pos, 1)
+                }
             }
         }
     })
