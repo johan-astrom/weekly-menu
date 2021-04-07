@@ -1,15 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Open+Sans&display=swap');
+
 body{
+    font-family: 'Open Sans', sans-serif;
     margin: 0;
 }
 
 header h1{
+    font-family: 'Merriweather', serif;
     text-align: center;
+    font-size: 40px;
+    margin-bottom: 20px;
 }
 
 .header-line{
-    background: black;
-    height: 10px;
+    background: linear-gradient(90deg, #A0A603, #BF5B04);
+    height: 20px;
     width: 100%;
+    margin-bottom: 50px;
 }
 
 main{
@@ -20,13 +27,39 @@ article#week-grid{
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     grid-template-rows: 1fr 1fr;
-    border: 2px solid black;
+    grid-gap: 30px;
     justify-items: center;
 }
 
 .recipe-img{
+    display: block;
+    margin: 0 auto;
     max-width: 100%;
     height: auto;
+}
+
+button, input[type=submit]{
+    font-size: 16px;
+    padding: 13px;
+    background-color: #FFF;
+    border: 2px solid black;
+    transition: 0.2s;
+}
+
+button:hover, input[type=submit]:hover {
+    background-color: #D9D166;
+    border-color: #D9D166;
+    transition: 0.2s;
+}
+
+input, select{
+    padding: 5px;
+
+}
+
+input:focus, select:focus{
+    outline: none;
+    border-color: #F2CEAE;
 }
 
 article#shopping-list ul{
@@ -38,5 +71,5 @@ article#shopping-list ul{
 }
 
 .active-title h3{
-    color: red;
+    color: #A0A603;
 }
