@@ -133,7 +133,20 @@
                 this.showForm = true
                 this.showRecipeSavedMsg = false
             },
-            //todo Ändra så att nya recept skriver över gamla på samma dag.
+            addIngredient() {
+                if (!(this.ingredientWeight && this.ingredientQty)) {
+                    let ingredient = {
+                        ingredientName: this.ingredientName,
+                        ingredientQty: this.ingredientQty,
+                        ingredientWeight: this.ingredientWeight
+                    }
+                    this.ingredients.push(ingredient)
+                    this.ingredientQty = ''
+                    this.ingredientName = ''
+                    this.ingredientWeight = ''
+                }
+            },
+            //todo gör det möjligt att ta bort recept
             //todo Gör så man kan välja vecka.
             addRecipe() {
                 let recipe = {
@@ -161,27 +174,26 @@
                         }
                     }
                 }
-                this.ingredients = []
-                this.title = ''
-                this.showForm = false
-                this.showRecipeSavedMsg = true
+                this.removeDuplicates(recipe)
+                this.clearForm()
+
                 this.$emit('save-recipe', recipe)
             },
-            addIngredient() {
-                if (!(this.ingredientWeight && this.ingredientQty)) {
-                    let ingredient = {
-                        ingredientName: this.ingredientName,
-                        ingredientQty: this.ingredientQty,
-                        ingredientWeight: this.ingredientWeight
+            removeDuplicates(recipe) {
+                for (let i = 0; i < this.recipes.length; i++) {
+                    if (this.recipes[i].weekday === recipe.weekday) {
+                        this.recipes[i].weekday = ''
                     }
-                    this.ingredients.push(ingredient)
-                    this.ingredientQty = ''
-                    this.ingredientName = ''
-                    this.ingredientWeight = ''
                 }
+            },
+            clearForm() {
+                this.ingredients = []
+                this.title = ''
+                this.weekday = ''
+                this.showForm = false
+                this.showRecipeSavedMsg = true
             }
         }
-
     })
 
     Vue.component('recipe-list', {
@@ -194,14 +206,17 @@
         template: `
           <section>
           <button v-show="!showRecipes" @click="displayRecipes">Show all recipes</button>
-          <article v-show="showRecipes">
+          <article id="recipes" v-show="showRecipes">
             <button @click="hideRecipes">Hide recipes</button>
             <ul>
               <li v-for="recipe in recipes"
-                  :key recipe.title>
+                  :key recipe.title
+                  @click="selectedTitle = recipe.title"
+                  :class="{'active-title': selectedTitle === recipe.title}">
                 <h3>{{ recipe.title }}</h3>
                 <ul>
-                  <li v-for="(ingredient, index) in recipe.ingredients"
+                  <li v-show="selectedTitle === recipe.title"
+                      v-for="(ingredient, index) in recipe.ingredients"
                       :key="index">
                     {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
                   </li>
@@ -213,7 +228,8 @@
         `,
         data() {
             return {
-                showRecipes: false
+                showRecipes: false,
+                selectedTitle: ''
             }
         },
         methods: {
@@ -222,6 +238,7 @@
             },
             hideRecipes() {
                 this.showRecipes = false
+                this.selectedTitle = ''
             }
         }
     })
@@ -235,14 +252,15 @@
         },
         template: `
           <section>
-          <button v-show="!showShoppingList">Show this week's shopping list</button>
-          <article v-show="showShoppingList">
+          <button v-show="!showShoppingList" @click="displayShoppingList">Show this week's shopping list</button>
+          <article id="shopping-list" v-show="showShoppingList">
+            <button @click="hideShoppingList">Hide shopping list</button>
             <h2>This week's shopping list:</h2>
-            <ul>
-              <li v-for="recipe in recipes"
-                  :recipes="recipes"
-                v-for="(ingredient, index) in recipe.ingredients"
-                :key="index">
+            <ul v-for="recipe in recipes"
+                :key="recipe.title">
+              <li
+                  v-for="(ingredient, index) in recipe.ingredients"
+                  :key="index">
                 {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
               </li>
             </ul>
@@ -252,6 +270,14 @@
         data() {
             return {
                 showShoppingList: false
+            }
+        },
+        methods: {
+            displayShoppingList() {
+                this.showShoppingList = true
+            },
+            hideShoppingList() {
+                this.showShoppingList = false
             }
         }
     })

@@ -28,3 +28,15 @@ article#week-grid{
     max-width: 100%;
     height: auto;
 }
+
+article#shopping-list ul{
+    list-style-type: none;
+}
+
+#recipes h3:hover{
+    text-decoration: underline;
+}
+
+.active-title h3{
+    color: red;
+}
