@@ -1,0 +1,30 @@
+body{
+    margin: 0;
+}
+
+header h1{
+    text-align: center;
+}
+
+.header-line{
+    background: black;
+    height: 10px;
+    width: 100%;
+}
+
+main{
+    margin: 0 200px;
+}
+
+article#week-grid{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: 1fr 1fr;
+    border: 2px solid black;
+    justify-items: center;
+}
+
+.recipe-img{
+    max-width: 100%;
+    height: auto;
+}
