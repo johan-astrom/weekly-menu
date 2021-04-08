@@ -15,13 +15,19 @@
 
   <main>
     <week-table :recipes="recipes" :weekdays="weekdays"></week-table>
-    <add-recipe :recipes="recipes" :weekdays="weekdays" @save-recipe="saveRecipe"></add-recipe>
-    <recipe-list :recipes="recipes"></recipe-list>
-    <shopping-list :recipes="recipes"></shopping-list>
+    <section id="user-interactive">
+      <article>
+        <add-recipe :recipes="recipes" :weekdays="weekdays" @save-recipe="saveRecipe"></add-recipe>
+        <recipe-list :recipes="recipes"></recipe-list>
+        <shopping-list :recipes="recipes"></shopping-list>
+      </article>
+    </section>
   </main>
 </section>
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 <script>
+
+    let eventBus = new Vue()
 
     Vue.component('week-table', {
         props: {
@@ -40,14 +46,31 @@
           <figure v-for="recipe in recipes"
                   v-if="recipe.weekday"
                   :key="recipe.title"
-                  :style="{gridArea: recipe.position()}">
+                  :style="{gridArea: recipe.position()}"
+                  @mouseover="hoveredWeekday=recipe.weekday"
+                  @mouseleave="hoveredWeekday=''"
+                  :class="{'hover-size': recipe.weekday===hoveredWeekday}"
+                  @click="showRecipe">
             <img :src="recipe.image" :alt="recipe.alt" class="recipe-img">
             <figcaption>{{ recipe.title }}</figcaption>
           </figure>
           </article>
         `,
         data() {
-            return {}
+            return {
+                hoveredWeekday: '',
+                displayRecipe: false
+            }
+        },
+        methods: {
+            showRecipe() {
+                eventBus.$emit('hide-others')
+                eventBus.$emit('show-recipe', this.hoveredWeekday)
+                console.log('showRecipe called with weekday: ' + this.hoveredWeekday)
+            }
+        },
+        mounted() {
+            eventBus.$on('hide-others', () => this.displayRecipe = false)
         }
     })
 
@@ -63,59 +86,67 @@
             }
         },
         //todo style add ingredient button when both qty and weight are selected
+        //todo lägg ut visningsläget på höger sida i egen component(och varje innehåll i egen? Eller här/varje article i egen?).
         template: `
-          <section>
+          <section id="add-recipe">
           <button v-show="!showForm" @click="displayForm">Add a recipe</button>
           <form v-show="showForm"
                 @submit.prevent="addRecipe">
             <p>
-            <label for="title">Enter a recipe name:</label>
+              <label for="title">Enter a recipe name:</label>
             </p>
             <p><input id="title"
-                               name="title"
-                               required
-                               v-model="title"/></p>
+                      name="title"
+                      required
+                      v-model="title"/></p>
             <p><label for="ingredients">Enter an ingredient:</label></p>
             <p><input id="ingredients"
-                               name="ingredients"
-                               v-model="ingredientName"></p>
+                      name="ingredients"
+                      v-model="ingredientName"></p>
             <p><label for="ingredient-qty">Select a quantity:</label></p>
             <p><input type="number"
-                               id="ingredient-qty"
-                               name="ingredient-qty"
-                               min="1"
-                               max="50"
-                               v-model="ingredientQty"></p>
-           <p> <label for="ingredient-weight">Or, enter a weight:</label></p>
+                      id="ingredient-qty"
+                      name="ingredient-qty"
+                      min="1"
+                      max="50"
+                      v-model="ingredientQty"></p>
+            <p><label for="ingredient-weight">Or, enter weight, measurement, etc:</label></p>
             <p><input id="ingredient-weight"
-                               name="ingredient-weight"
-                               v-model="ingredientWeight"></p>
+                      name="ingredient-weight"
+                      v-model="ingredientWeight"></p>
             <p v-if="ingredientQty && ingredientWeight">Please enter either quantity or weight!</p>
-            <p><button @click.prevent="addIngredient">Add ingredient</button></p>
+            <p v-if="showIngredientError">Ingredient name required!</p>
+            <p>
+              <button @click.prevent="addIngredient">Add ingredient</button>
+            </p>
             <p><label for="weekday">Choose a weekday, or leave blank to save the recipe for later:</label></p>
             <p><select id="weekday"
-                                name="weekday"
-                                v-model="weekday">
+                       name="weekday"
+                       v-model="weekday">
               <option></option>
               <option v-for="weekday in weekdays">{{ weekday }}</option>
             </select></p>
             <p>
-                        <input type="submit"
-                               id="submit"
-                               name="submit"
-                               value="Save recipe"></p>
-            <p><button @click="clearForm" id="cancelForm">Cancel</button></p>
-            <article>
-              <h2 v-show="title.length || ingredients.length">Your recipe:</h2>
-              <h3>{{ title }}</h3>
-              <ul>
-                <li v-for="(ingredient, index) in ingredients"
-                    :key="index">
-                  {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
-                </li>
-              </ul>
-            </article>
+              <input type="submit"
+                     id="submit"
+                     name="submit"
+                     value="Save recipe"></p>
+            <p>
+              <button @click="clearForm" id="cancelForm">Cancel</button>
+            </p>
           </form>
+          <div id="placeholder"></div>
+          <article v-show="showForm" id="reactive-recipe">
+            <h2 v-show="title.length || ingredients.length">Your recipe:</h2>
+            <h3>{{ title }}</h3>
+            <ul>
+              <li v-for="(ingredient, index) in ingredients"
+                  :key="index">
+                {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
+              </li>
+            </ul>
+          </article>
+          <todays-recipe :recipes="recipes"></todays-recipe>
           <p v-show="showRecipeSavedMsg">Recipe saved!</p>
           </section>
         `,
@@ -123,6 +154,7 @@
             return {
                 showForm: false,
                 showRecipeSavedMsg: false,
+                showIngredientError: false,
                 title: '',
                 ingredientName: '',
                 ingredientQty: '',
@@ -135,11 +167,13 @@
         },
         methods: {
             displayForm() {
+                eventBus.$emit('hide-others')
                 this.showForm = true
                 this.showRecipeSavedMsg = false
             },
             addIngredient() {
-                if (!(this.ingredientWeight && this.ingredientQty)) {
+                if (!(this.ingredientWeight && this.ingredientQty)
+                    && this.ingredientName) {
                     let ingredient = {
                         ingredientName: this.ingredientName,
                         ingredientQty: this.ingredientQty,
@@ -147,6 +181,8 @@
                     }
                     this.ingredients.push(ingredient)
                     this.clearIngredients()
+                } else if (!this.ingredientName) {
+                    this.showIngredientError = true
                 }
             },
             //todo Gör så man kan välja vecka.
@@ -196,11 +232,55 @@
                 this.showForm = false
                 this.clearIngredients()
             },
-            clearIngredients(){
+            clearIngredients() {
                 this.ingredientQty = ''
                 this.ingredientName = ''
                 this.ingredientWeight = ''
+                this.showIngredientError = false
             }
+        },
+        mounted() {
+            eventBus.$on('hide-others', () => {
+                this.showForm = false
+                this.showRecipeSavedMsg = false
+                this.showTodaysRecipe = false
+            })
+        }
+    })
+
+    Vue.component('todays-recipe', {
+        props: {
+            recipes: {
+                type: Array,
+                required: true
+            }
+        },
+        template: `
+          <article v-show="showTodaysRecipe">
+          <h2>{{ todaysRecipe.weekday }}:</h2>
+          <h3>{{ todaysRecipe.title }}</h3>
+          <ul>
+            <li v-for="ingredient in todaysRecipe.ingredients">
+              {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
+            </li>
+          </ul>
+          </article>
+        `,
+        data() {
+            return {
+                showTodaysRecipe: false,
+                todaysRecipe: ''
+            }
+        },
+        methods: {
+            displayTodaysRecipe(weekday) {
+                this.showTodaysRecipe = true
+                this.todaysRecipe = this.recipes.find(x => x.weekday === weekday)
+            }
+        },
+        mounted() {
+            eventBus.$on('hide-others', () => this.showTodaysRecipe = false)
+            eventBus.$on('show-recipe', (weekday) => this.displayTodaysRecipe(weekday))
         }
     })
 
@@ -212,7 +292,7 @@
             }
         },
         template: `
-          <section>
+          <section id="recipe-list">
           <button v-show="!showRecipes" @click="displayRecipes">Show all recipes</button>
           <article id="recipes" v-show="showRecipes">
             <button @click="hideRecipes">Hide recipes</button>
@@ -223,7 +303,11 @@
                   :class="{'active-title': selectedTitle === recipe.title}">
                 <h3>{{ recipe.title }}</h3>
                 <div v-show="selectedTitle === recipe.title">
-                  <input type="image" src="img/icon/outline_remove_circle_black_24dp.png" alt="delete" id="delete"
+                  <input type="image"
+                         src="img/icon/outline_remove_circle_black_24dp.png"
+                         alt="delete"
+                         id="delete"
+                         title="delete recipe"
                          @click="deleteRecipe">
                   <ul>
                     <li
@@ -246,6 +330,7 @@
         },
         methods: {
             displayRecipes() {
+                eventBus.$emit('hide-others')
                 this.showRecipes = true
             },
             hideRecipes() {
@@ -258,6 +343,9 @@
                     this.recipes.splice(pos, 1)
                 }
             }
+        },
+        mounted() {
+            eventBus.$on('hide-others', () => this.showRecipes = false)
         }
     })
 
@@ -293,11 +381,15 @@
         },
         methods: {
             displayShoppingList() {
+                eventBus.$emit('hide-others')
                 this.showShoppingList = true
             },
             hideShoppingList() {
                 this.showShoppingList = false
             }
+        },
+        mounted() {
+            eventBus.$on('hide-others', () => this.showShoppingList = false)
         }
     })
 
@@ -305,7 +397,7 @@
         el: '#app',
         data: {
             weekdays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-            recipes: [{
+            recipes: [/*{
                 title: 'potatis',
                 weekday: 'wednesday',
                 ingredients: [{ingredientName: 'potatis', ingredientQty: 4}],
@@ -329,7 +421,7 @@
                             return '2 / 7 / 3 / 8';
                     }
                 }
-            }]
+            }*/]
         },
         methods: {
             saveRecipe(recipe) {
