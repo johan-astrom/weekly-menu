@@ -100,7 +100,7 @@ input:focus, select:focus{
     border-color: #F2CEAE;
 }
 
-#user-interactive{
+#add-recipe{
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
 }
