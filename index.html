@@ -84,9 +84,9 @@
         template: `
           <section id="add-recipe">
           <article id="optionButtons">
-            <button v-show="!showForm" @click="displayForm">Add a recipe</button>
-            <button v-show="showRecipeBtn" @click="displayRecipes">Show all recipes</button>
-            <button v-show="showShoppingListBtn" @click="displayShoppingList">Show this week's shopping list</button>
+            <button @click="displayForm">Add a recipe</button>
+            <button @click="displayRecipes">Show all recipes</button>
+            <button @click="displayShoppingList">Show this week's shopping list</button>
           </article>
           <p v-show="showRecipeSavedMsg">Recipe saved!</p>
           <form v-show="showForm"
@@ -136,24 +136,25 @@
               <button @click="clearForm" id="cancelForm">Cancel</button>
             </p>
           </form>
-          <div id="placeholder"></div>
+          <div>
+          <article v-show="showForm" id="reactive-recipe">
+            <h2 v-show="title.length || ingredients.length">Your recipe:</h2>
+            <h3>{{ title }}</h3>
+            <ul>
+              <li v-for="(ingredient, index) in ingredients"
+                  :key="index">
+                {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
+                <input type="image"
+                       src="img/icon/outline_delete_black_24dp.png"
+                       alt="delete"
+                       class="delete"
+                       title="remove ingredient"
+                       @click="removeIngredient(index)">
+              </li>
+            </ul>
+          </article>
+          </div>
           <section id="display">
-            <article v-show="showForm" id="reactive-recipe">
-              <h2 v-show="title.length || ingredients.length">Your recipe:</h2>
-              <h3>{{ title }}</h3>
-              <ul>
-                <li v-for="(ingredient, index) in ingredients"
-                    :key="index">
-                  {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
-                  <input type="image"
-                         src="img/icon/outline_delete_black_24dp.png"
-                         alt="delete"
-                         class="delete"
-                         title="remove ingredient"
-                         @click="removeIngredient(index)">
-                </li>
-              </ul>
-            </article>
             <todays-recipe :recipes="recipes"></todays-recipe>
             <recipe-list :recipes="recipes"></recipe-list>
             <shopping-list :recipes="recipes"></shopping-list>
@@ -254,10 +255,12 @@
                 this.showIngredientError = false
             },
             displayRecipes() {
+                eventBus.$emit('hide-others')
                 eventBus.$emit('show-recipes')
                 this.showRecipeBtn = false
             },
             displayShoppingList() {
+                eventBus.$emit('hide-others')
                 eventBus.$emit('show-shoppinglist')
                 this.showShoppingListBtn = false
             }
@@ -383,17 +386,17 @@
         },
         template: `
           <article id="shopping-list" v-show="showShoppingList">
-            <button @click="hideShoppingList">Hide shopping list</button>
-            <h2>This week's shopping list:</h2>
-            <ul v-for="recipe in recipes"
-                :key="recipe.title"
-                v-if="recipe.weekday">
-              <li
-                  v-for="(ingredient, index) in recipe.ingredients"
-                  :key="index">
-                {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
-              </li>
-            </ul>
+          <button @click="hideShoppingList">Hide shopping list</button>
+          <h2>This week's shopping list:</h2>
+          <ul v-for="recipe in recipes"
+              :key="recipe.title"
+              v-if="recipe.weekday">
+            <li
+                v-for="(ingredient, index) in recipe.ingredients"
+                :key="index">
+              {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
+            </li>
+          </ul>
           </article>
         `,
         data() {
@@ -448,7 +451,7 @@
                     weekday: 'monday',
                     ingredients: [{ingredientName: 'potatis', ingredientQty: 4},
                         {ingredientName: 'ingefära', ingredientQty: 5}],
-                    image: 'img/wednesday.jpg',
+                    image: 'img/monday.jpg',
                     alt: 'potato',
                     position: function () {
                         switch (this.weekday) {

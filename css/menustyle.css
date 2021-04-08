@@ -140,7 +140,7 @@ article#shopping-list ul {
     list-style-type: none;
 }
 
-#recipes h3:hover {
+#recipe-list h3:hover {
     text-decoration: underline;
 }
 
