@@ -31,11 +31,7 @@ main {
     margin: 0 180px;
 }
 
-section#add-recipe {
-    margin-bottom: 40px;
-}
-
-section#recipe-list {
+article#optionButtons button{
     margin-bottom: 40px;
 }
 
