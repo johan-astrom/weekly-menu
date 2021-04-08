@@ -5,11 +5,12 @@ body {
     margin: 0;
 }
 
+
 ul li {
     line-height: 175%;
 }
 
-ul li:first-child {
+#recipe-list ul li:first-child {
     margin-top: 5px;
 }
 
@@ -114,7 +115,7 @@ input:focus, select:focus, button:focus{
     border-color: lightgray;
 }
 
-#add-recipe {
+#user-interactivity {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
 }
@@ -148,5 +149,10 @@ article#shopping-list ul {
     color: #A0A603;
 }
 
-#display{
+#shopping-list ul{
+    margin: 0 auto;
+}
+
+#shopping-list li{
+    line-height: 200%;
 }

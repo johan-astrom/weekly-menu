@@ -15,7 +15,7 @@
 
   <main>
     <week-table :recipes="recipes" :weekdays="weekdays"></week-table>
-    <add-recipe :recipes="recipes" :weekdays="weekdays" @save-recipe="saveRecipe"></add-recipe>
+    <user-interactivity :recipes="recipes" :weekdays="weekdays" @save-recipe="saveRecipe"></user-interactivity>
   </main>
 </section>
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
@@ -68,7 +68,7 @@
         }
     })
 
-    Vue.component('add-recipe', {
+    Vue.component('user-interactivity', {
         props: {
             recipes: {
                 type: Array,
@@ -79,10 +79,8 @@
                 required: true
             }
         },
-        //todo lägg ut visningsläget på höger sida i egen component(och varje innehåll i egen? Eller här/varje article i egen?).
-        // Döp om section och component till mer generiskt.
         template: `
-          <section id="add-recipe">
+          <section id="user-interactivity">
           <article id="optionButtons">
             <button @click="displayForm">Add a recipe</button>
             <button @click="displayRecipes">Show all recipes</button>
@@ -319,6 +317,7 @@
                 required: true
             }
         },
+        //todo lägg till möjlighet att klicka i vecka
         template: `
           <section id="recipe-list" v-show="showRecipes">
           <button @click="hideRecipes">Hide recipes</button>
