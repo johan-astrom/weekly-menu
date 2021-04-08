@@ -81,11 +81,11 @@
                 required: true
             }
         },
-        //todo style add ingredient button when both qty and weight are selected
         //todo lägg ut visningsläget på höger sida i egen component(och varje innehåll i egen? Eller här/varje article i egen?).
         template: `
           <section id="add-recipe">
           <button v-show="!showForm" @click="displayForm">Add a recipe</button>
+          <p v-show="showRecipeSavedMsg">Recipe saved!</p>
           <form v-show="showForm"
                 @submit.prevent="addRecipe">
             <p>
@@ -110,10 +110,11 @@
             <p><input id="ingredient-weight"
                       name="ingredient-weight"
                       v-model="ingredientWeight"></p>
-            <p v-if="ingredientQty && ingredientWeight">Please enter either quantity or weight!</p>
+            <p v-if="ingredientQty && ingredientWeight">Please enter either quantity or free text!</p>
             <p v-if="showIngredientError">Ingredient name required!</p>
             <p>
-              <button @click.prevent="addIngredient">Add ingredient</button>
+              <button @click.prevent="addIngredient"
+                      :class="{dualOptions: ingredientQty && ingredientWeight}">Add ingredient</button>
             </p>
             <p><label for="weekday">Choose a weekday, or leave blank to save the recipe for later:</label></p>
             <p><select id="weekday"
@@ -132,6 +133,7 @@
             </p>
           </form>
           <div id="placeholder"></div>
+          <section id="display">
           <article v-show="showForm" id="reactive-recipe">
             <h2 v-show="title.length || ingredients.length">Your recipe:</h2>
             <h3>{{ title }}</h3>
@@ -139,11 +141,17 @@
               <li v-for="(ingredient, index) in ingredients"
                   :key="index">
                 {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
+                <input type="image"
+                       src="img/icon/outline_delete_black_24dp.png"
+                       alt="delete"
+                       class="delete"
+                       title="remove ingredient"
+                       @click="removeIngredient(index)">
               </li>
             </ul>
           </article>
           <todays-recipe :recipes="recipes"></todays-recipe>
-          <p v-show="showRecipeSavedMsg">Recipe saved!</p>
+          </section>
           </section>
         `,
         data() {
@@ -180,6 +188,9 @@
                 } else if (!this.ingredientName) {
                     this.showIngredientError = true
                 }
+            },
+            removeIngredient(index){
+              this.ingredients.splice(index, 1)
             },
             //todo Gör så man kan välja vecka.
             addRecipe() {
@@ -293,18 +304,22 @@
           <article id="recipes" v-show="showRecipes">
             <button @click="hideRecipes">Hide recipes</button>
             <ul>
-              <li v-for="recipe in recipes"
+              <li id="recipes-loop"
+                  v-for="recipe in recipes"
                   :key recipe.title
                   @click="selectedTitle = recipe.title"
                   :class="{'active-title': selectedTitle === recipe.title}">
-                <h3>{{ recipe.title }}</h3>
-                <div v-show="selectedTitle === recipe.title">
+                <div id="recipe-header">
+                  <h3>{{ recipe.title }}</h3>
                   <input type="image"
-                         src="img/icon/outline_remove_circle_black_24dp.png"
+                         src="img/icon/outline_delete_black_24dp.png"
                          alt="delete"
-                         id="delete"
+                         class="delete"
                          title="delete recipe"
+                         v-show="selectedTitle === recipe.title"
                          @click="deleteRecipe">
+                </div>
+                <div v-show="selectedTitle === recipe.title">
                   <ul>
                     <li
                         v-for="(ingredient, index) in recipe.ingredients"
@@ -393,11 +408,12 @@
         el: '#app',
         data: {
             weekdays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-            recipes: [/*{
+            recipes: [{
                 title: 'potatis',
                 weekday: 'wednesday',
-                ingredients: [{ingredientName: 'potatis', ingredientQty: 4}],
-                image: 'img/potato.jpg',
+                ingredients: [{ingredientName: 'potatis', ingredientQty: 4},
+                    {ingredientName: 'ingefära', ingredientQty: 5}],
+                image: 'img/wednesday.jpg',
                 alt: 'potato',
                 position: function () {
                     switch (this.weekday) {
@@ -417,7 +433,33 @@
                             return '2 / 7 / 3 / 8';
                     }
                 }
-            }*/]
+            },
+                {
+                    title: 'rättikor',
+                    weekday: 'monday',
+                    ingredients: [{ingredientName: 'potatis', ingredientQty: 4},
+                        {ingredientName: 'ingefära', ingredientQty: 5}],
+                    image: 'img/wednesday.jpg',
+                    alt: 'potato',
+                    position: function () {
+                        switch (this.weekday) {
+                            case 'monday':
+                                return '2 / 1 / 3 / 2';
+                            case 'tuesday':
+                                return '2 / 2 / 3 / 3';
+                            case 'wednesday':
+                                return '2 / 3 / 3 / 4';
+                            case 'thursday':
+                                return '2 / 4 / 3 / 5';
+                            case 'friday':
+                                return '2 / 5 / 3 / 6';
+                            case 'saturday':
+                                return '2 / 6 / 3 / 7';
+                            case 'sunday':
+                                return '2 / 7 / 3 / 8';
+                        }
+                    }
+                }]
         },
         methods: {
             saveRecipe(recipe) {

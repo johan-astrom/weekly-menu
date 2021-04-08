@@ -1,39 +1,47 @@
 @import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Open+Sans&display=swap');
 
-body{
+body {
     font-family: 'Open Sans', sans-serif;
     margin: 0;
 }
 
-header h1{
+ul li {
+    line-height: 175%;
+}
+
+ul li:first-child {
+    margin-top: 5px;
+}
+
+header h1 {
     font-family: 'Merriweather', serif;
     text-align: center;
     font-size: 40px;
-    margin-bottom: 20px;
+    margin: 20px auto;
 }
 
-.header-line{
+.header-line {
     background: linear-gradient(90deg, #A0A603, #BF5B04);
     height: 20px;
     width: 100%;
     margin-bottom: 50px;
 }
 
-main{
+main {
     margin: 0 180px;
 }
 
-section#add-recipe{
+section#add-recipe {
     margin-bottom: 40px;
 }
 
-section#recipe-list{
+section#recipe-list {
     margin-bottom: 40px;
 }
 
-article#week-grid{
+article#week-grid {
     display: grid;
-    grid-template-columns: repeat(7, minmax(0,1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     grid-template-rows: 1fr 3fr;
     grid-gap: 30px;
     border: 2px solid #A0A603;
@@ -42,7 +50,7 @@ article#week-grid{
     padding: 10px 30px;
 }
 
-#week-grid figure{
+#week-grid figure {
     display: block;
     width: 100%;
     height: auto;
@@ -51,27 +59,27 @@ article#week-grid{
     box-sizing: border-box;
 }
 
-#week-grid .hover-size{
+#week-grid .hover-size {
     transform: scale(1.03);
 }
 
-.recipe-img{
+.recipe-img {
     display: block;
     margin: 0 auto 20px;
     max-width: 100%;
     height: auto;
 }
 
-button{
+button {
     width: 250px;
     height: 48px;
 }
 
-form button, input[type=submit]{
-    width:150px;
+form button, input[type=submit] {
+    width: 150px;
 }
 
-button, input[type=submit]{
+button, input[type=submit] {
     font-size: 16px;
     padding: 13px;
     background-color: #FFF;
@@ -80,9 +88,9 @@ button, input[type=submit]{
     margin-right: 20px;
 }
 
-input[type=submit]{
+input[type=submit] {
     margin-top: 20px;
-    border:3px solid #A0A603;
+    border: 3px solid #A0A603;
 }
 
 button:hover, input[type=submit]:hover {
@@ -91,28 +99,58 @@ button:hover, input[type=submit]:hover {
     transition: 0.2s;
 }
 
-input, select{
+input, select {
     padding: 5px;
 }
 
-input:focus, select:focus{
+input:focus, select:focus, button:focus{
     outline: none;
     border-color: #F2CEAE;
 }
 
-#add-recipe{
+.dualOptions{
+    color: lightgray;
+    border-color: lightgray;
+}
+
+.dualOptions:hover{
+    background-color: white;
+    border-color: lightgray;
+}
+
+#add-recipe {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
 }
 
-article#shopping-list ul{
+#recipe-list h3 {
+    display: inline;
+}
+
+#recipe-list #header{
+    margin-top: 10px;
+}
+
+#recipes-loop{
+    margin-top: 20px;
+}
+
+input.delete {
+    vertical-align: bottom;
+    margin-left: 10px;
+}
+
+article#shopping-list ul {
     list-style-type: none;
 }
 
-#recipes h3:hover{
+#recipes h3:hover {
     text-decoration: underline;
 }
 
-.active-title h3{
+.active-title h3 {
     color: #A0A603;
+}
+
+#display{
 }
