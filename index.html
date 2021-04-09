@@ -385,8 +385,12 @@
                 :key="index"
                 @click="selectedIndex = index"
                 :class="{'active-title': selectedIndex === index}">
-
-
+              <recipe-info
+                  :remove-duplicates="removeDuplicates"
+                  :weekdays="weekdays"
+                  :recipe="recipe"
+                  :index="index"
+              :selected-index="selectedIndex"></recipe-info>
 
             </li>
           </ul>
@@ -403,17 +407,6 @@
                 this.showRecipes = false
                 this.selectedIndex = ''
                 eventBus.$emit('hide-others')
-            },
-            deleteRecipe() {
-                if (confirm('Are you sure you want to delete recipe: ' + this.recipes[this.selectedIndex].title + '?')) {
-                    this.recipes.splice(this.selectedIndex, 1)
-                    eventBus.$emit('update-recipes')
-                }
-            },
-            updateRecipe() {
-                let index = this.selectedIndex
-                eventBus.$emit('hide-others')
-                eventBus.$emit('update-recipe', index)
             }
         },
         mounted() {
@@ -426,33 +419,75 @@
     })
 
     Vue.component('recipe-info', {
+        props: {
+            recipe: {
+                type: Object,
+                required: true
+            },
+            weekdays: {
+                type: Array,
+                required: true
+            },
+            removeDuplicates: {
+                type: Function,
+                required: true
+            },
+            index: {
+                type: Number,
+                required: true
+            },
+            selectedIndex: {
+                type: Number,
+                required: true
+            }
+        },
         template:
-            `
-        <div id="recipe-header">
-                <h3>{{ recipe.title }}</h3>
-                <input type="image"
-                       src="img/icon/outline_delete_black_24dp.png"
-                       alt="delete"
-                       class="delete"
-                       title="delete recipe"
-                       v-show="selectedIndex === index"
-                       @click="deleteRecipe">
-              </div>
-              <div v-show="selectedIndex === index">
-                <h4 v-if="recipe.weekday">Recipe for: {{ recipe.weekday }}</h4>
-                <ul>
-                  <li id="ingredient-list"
-                      v-for="(ingredient, index) in recipe.ingredients"
-                      :key="index">
-                    {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
-                  </li>
-                </ul>
-                <change-weekday :weekdays="weekdays"
-                                :remove-duplicates="removeDuplicates"
-                                :recipe="recipe"></change-weekday>
-                <button @click="updateRecipe">Update recipe info</button>
-              </div>
-        `
+                `
+                  <article>
+                  <div id="recipe-header">
+                    <h3>{{ recipe.title }}</h3>
+                    <input type="image"
+                           src="img/icon/outline_delete_black_24dp.png"
+                           alt="delete"
+                           class="delete"
+                           title="delete recipe"
+                           v-show="selectedIndex === index"
+                           @click="deleteRecipe">
+                  </div>
+                  <div v-show="selectedIndex === index">
+                    <h4 v-if="recipe.weekday">Recipe for: {{ recipe.weekday }}</h4>
+                    <ul>
+                      <li id="ingredient-list"
+                          v-for="(ingredient, index) in recipe.ingredients"
+                          :key="index">
+                        {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}
+                        {{ ingredient.ingredientWeight }}
+                      </li>
+                    </ul>
+                    <change-weekday :weekdays="weekdays"
+                                    :remove-duplicates="removeDuplicates"
+                                    :recipe="recipe"></change-weekday>
+                    <button @click="updateRecipe">Update recipe info</button>
+                  </div>
+                  </article>
+                `,
+        data() {
+            return {
+            }
+        },
+        methods: {
+            deleteRecipe() {
+                if (confirm('Are you sure you want to delete recipe: ' + this.recipes[this.selectedIndex].title + '?')) {
+                    this.recipes.splice(this.selectedIndex, 1)
+                    eventBus.$emit('update-recipes')
+                }
+            },
+            updateRecipe() {
+                let index = this.selectedIndex
+                eventBus.$emit('hide-others')
+                eventBus.$emit('update-recipe', index)
+            }
+        }
     })
 
     Vue.component('change-weekday', {
@@ -525,15 +560,15 @@
                 @mouseleave="hoveredItem=''"
                 :class="{greenMarked: ingredient.purchased}">
               {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
-                <img v-if="!ingredient.purchased"
-                     v-show="hoveredItem===ingredient"
-                     @click="changePurchased(ingredient)"
-                     src="img/icon/outline_check_circle_black_24dp.png"
-                     alt="check">
+              <img v-if="!ingredient.purchased"
+                   v-show="hoveredItem===ingredient"
+                   @click="changePurchased(ingredient)"
+                   src="img/icon/outline_check_circle_black_24dp.png"
+                   alt="check">
               <img v-if="ingredient.purchased"
-                     v-show="hoveredItem===ingredient"
-                     @click="changePurchased(ingredient)"
-                     src="img/icon/outline_clear_black_24dp.png"
+                   v-show="hoveredItem===ingredient"
+                   @click="changePurchased(ingredient)"
+                   src="img/icon/outline_clear_black_24dp.png"
                    alt="uncheck">
             </li>
           </ul>
@@ -551,8 +586,8 @@
                 this.showShoppingList = false
                 eventBus.$emit('hide-others')
             },
-            changePurchased(ingredient){
-              ingredient.purchased = !ingredient.purchased
+            changePurchased(ingredient) {
+                ingredient.purchased = !ingredient.purchased
                 eventBus.$emit('update-ingredients')
             }
         },
