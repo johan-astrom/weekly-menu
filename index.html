@@ -37,7 +37,6 @@
                 required: true
             }
         },
-        //todo delete funkar inte (lstan och dagsvyn)
         template: `
           <article id="week-grid">
           <h2 v-for="weekday in weekdays">{{ weekday }}</h2>
@@ -321,10 +320,12 @@
                 required: true
             }
         },
+        //todo recept syns vid deletion
         template: `
           <article v-show="showTodaysRecipe" id="todays-recipe">
           <recipe-info
           :weekdays="weekdays"
+          :recipes="recipes"
           :recipe="todaysRecipe"
           :remove-duplicates="removeDuplicates"
           :index="recipes.indexOf(todaysRecipe)"
@@ -385,6 +386,7 @@
               <recipe-info
                   :remove-duplicates="removeDuplicates"
                   :weekdays="weekdays"
+                  :recipes="recipes"
                   :recipe="recipe"
                   :index="index"
               :selected-index="selectedIndex"></recipe-info>
@@ -419,6 +421,10 @@
         props: {
             recipe: {
                 type: Object,
+                required: true
+            },
+            recipes: {
+                type: Array,
                 required: true
             },
             weekdays: {
