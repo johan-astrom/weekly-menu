@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Weekly menu</title>
+  <title>Menu of the week</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" type="text/css" href="css/menustyle.css">
 </head>
@@ -15,7 +15,10 @@
 
   <main>
     <week-table :recipes="recipes" :weekdays="weekdays"></week-table>
-    <user-interactivity :recipes="recipes" :weekdays="weekdays" @save-recipe="saveRecipe"></user-interactivity>
+    <user-interactivity :recipes="recipes"
+                        :weekdays="weekdays"
+                        @save-recipe="saveRecipe"
+    ></user-interactivity>
   </main>
 </section>
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
@@ -40,7 +43,7 @@
           <figure v-for="recipe in recipes"
                   v-if="recipe.weekday"
                   :key="recipe.title"
-                  :style="{gridArea: recipe.position()}"
+                  :style="{gridArea: position(recipe)}"
                   @mouseover="hoveredWeekday=recipe.weekday"
                   @mouseleave="hoveredWeekday=''"
                   :class="{'hover-size': recipe.weekday===hoveredWeekday}"
@@ -60,7 +63,24 @@
             showRecipe() {
                 eventBus.$emit('hide-others')
                 eventBus.$emit('show-recipe', this.hoveredWeekday)
-                console.log('showRecipe called with weekday: ' + this.hoveredWeekday)
+            },
+            position(recipe) {
+                switch (recipe.weekday) {
+                    case 'monday':
+                        return '2 / 1 / 3 / 2';
+                    case 'tuesday':
+                        return '2 / 2 / 3 / 3';
+                    case 'wednesday':
+                        return '2 / 3 / 3 / 4';
+                    case 'thursday':
+                        return '2 / 4 / 3 / 5';
+                    case 'friday':
+                        return '2 / 5 / 3 / 6';
+                    case 'saturday':
+                        return '2 / 6 / 3 / 7';
+                    case 'sunday':
+                        return '2 / 7 / 3 / 8';
+                }
             }
         },
         mounted() {
@@ -155,8 +175,7 @@
           <section id="display">
             <todays-recipe :recipes="recipes"
                            :weekdays="weekdays"
-                           :assign-weekday="assignWeekday"
-                           :new-weekday="newWeekday"></todays-recipe>
+                           :remove-duplicates="removeDuplicates"></todays-recipe>
             <recipe-list :recipes="recipes" :weekdays="weekdays" :remove-duplicates="removeDuplicates"></recipe-list>
             <shopping-list :recipes="recipes"></shopping-list>
           </section>
@@ -169,6 +188,8 @@
                 showIngredientError: false,
                 showRecipeBtn: true,
                 showShoppingListBtn: true,
+                update: false,
+                updateIndex: 0,
                 title: '',
                 ingredientName: '',
                 ingredientQty: '',
@@ -208,32 +229,18 @@
                     title: this.title,
                     ingredients: this.ingredients.slice(),
                     weekday: this.weekday,
-                    image: `img/${this.weekday}.jpg`,
+                    image: this.renderImgString,
                     alt: this.weekday,
-                    position: function () {
-                        switch (this.weekday) {
-                            case 'monday':
-                                return '2 / 1 / 3 / 2';
-                            case 'tuesday':
-                                return '2 / 2 / 3 / 3';
-                            case 'wednesday':
-                                return '2 / 3 / 3 / 4';
-                            case 'thursday':
-                                return '2 / 4 / 3 / 5';
-                            case 'friday':
-                                return '2 / 5 / 3 / 6';
-                            case 'saturday':
-                                return '2 / 6 / 3 / 7';
-                            case 'sunday':
-                                return '2 / 7 / 3 / 8';
-                        }
-                    }
                 }
+                if (this.update) {
+                    this.recipes[this.updateIndex] = recipe
+                } else {
+                    this.$emit('save-recipe', recipe)
+                }
+                eventBus.$emit('update-recipes')
                 this.removeDuplicates(recipe)
                 this.clearForm()
                 this.showRecipeSavedMsg = true
-
-                this.$emit('save-recipe', recipe)
             },
             removeDuplicates(recipe) {
                 for (let i = 0; i < this.recipes.length; i++) {
@@ -268,6 +275,13 @@
                 this.showShoppingListBtn = false
             }
         },
+        computed: {
+            renderImgString() {
+                if (this.weekday) {
+                    return `img/${this.weekday}.jpg`
+                } else return ''
+            }
+        },
         mounted() {
             eventBus.$on('hide-others', () => {
                 this.showForm = false
@@ -275,6 +289,17 @@
                 this.showTodaysRecipe = false
                 this.showRecipeBtn = true
                 this.showShoppingListBtn = true
+                this.update = false
+            })
+            eventBus.$on('update-recipe', (index) => {
+                this.showForm = true
+                this.update = true
+
+                let recipe = this.recipes[index]
+                this.title = recipe.title
+                this.weekday = recipe.weekday
+                this.ingredients = recipe.ingredients
+                this.updateIndex = index
             })
         }
     })
@@ -289,11 +314,7 @@
                 type: Array,
                 required: true
             },
-            newWeekday: {
-                type: String,
-                required: true
-            },
-            assignWeekday: {
+            removeDuplicates: {
                 type: Function,
                 required: true
             }
@@ -307,16 +328,10 @@
               {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
             </li>
           </ul>
-          <div id="new-weekday">
-            <h4>Change weekday:</h4>
-            <select id="new-weekday-select" name="new-weekday-select" v-model="newWeekday">
-              <option>-- none --</option>
-              <option v-for="(weekday, index) in weekdays"
-                      :key="index">{{ weekday }}
-              </option>
-            </select>
-            <button @click="assignWeekday">Assign</button>
-          </div>
+          <change-weekday :weekdays="weekdays"
+                          :remove-duplicates="removeDuplicates"
+                          :recipe="todaysRecipe"></change-weekday>
+          <button @click="updateRecipe">Update recipe</button>
           </article>
         `,
         data() {
@@ -329,6 +344,10 @@
             displayTodaysRecipe(weekday) {
                 this.showTodaysRecipe = true
                 this.todaysRecipe = this.recipes.find(x => x.weekday === weekday)
+            },
+            updateRecipe() {
+                eventBus.$emit('hide-others')
+                eventBus.$emit('update-recipe', this.recipes.indexOf(this.todaysRecipe))
             }
         },
         mounted() {
@@ -352,6 +371,7 @@
                 required: true
             }
         },
+        //todo lägg till edit-funktionalitet
         template: `
           <section id="recipe-list" v-show="showRecipes">
           <button @click="hideRecipes">Hide recipes</button>
@@ -384,17 +404,10 @@
                     {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
                   </li>
                 </ul>
-                <div id="new-weekday">
-                  <h4 v-if="!recipe.weekday">Assign to weekday:</h4>
-                  <h4 v-else>Change weekday:</h4>
-                  <select id="new-weekday-select" name="new-weekday-select" v-model="newWeekday">
-                    <option v-if="recipe.weekday">-- none --</option>
-                    <option v-for="(weekday, index) in weekdays"
-                            :key="index">{{ weekday }}
-                    </option>
-                  </select>
-                  <button @click="assignWeekday">Assign</button>
-                </div>
+                <change-weekday :weekdays="weekdays"
+                                :remove-duplicates="removeDuplicates"
+                                :recipe="recipe"></change-weekday>
+                <button @click="updateRecipe">Update recipe</button>
               </div>
             </li>
           </ul>
@@ -403,8 +416,7 @@
         data() {
             return {
                 showRecipes: false,
-                selectedIndex: '',
-                newWeekday: ''
+                selectedIndex: ''
             }
         },
         methods: {
@@ -416,24 +428,21 @@
             deleteRecipe() {
                 if (confirm('Are you sure you want to delete recipe: ' + this.recipes[this.selectedIndex].title + '?')) {
                     this.recipes.splice(this.selectedIndex, 1)
+                    eventBus.$emit('update-recipes')
                 }
             },
-            assignWeekday() {
-                let recipe = this.recipes[this.selectedIndex]
-                if (this.newWeekday === '-- none --') {
-                    recipe.weekday = ''
-                    recipe.image = ''
-                } else {
-                    recipe.weekday = this.newWeekday
-                    recipe.image = `img/${this.newWeekday}.jpg`
-                    this.removeDuplicates(recipe)
-                }
+            updateRecipe() {
+                let index = this.selectedIndex
+                eventBus.$emit('hide-others')
+                eventBus.$emit('update-recipe', index)
             }
         },
         mounted() {
-            eventBus.$on('hide-others', () => this.showRecipes = false)
-            eventBus.$on('show-recipes', () => this.showRecipes = true
-            )
+            eventBus.$on('hide-others', () => {
+                this.showRecipes = false
+                this.selectedIndex = ''
+            })
+            eventBus.$on('show-recipes', () => this.showRecipes = true)
         }
     })
 
@@ -445,27 +454,28 @@
             },
             recipe: {
                 type: Object,
-                required: true
+                required: false
             },
-            removeDuplicates:{
+            removeDuplicates: {
                 type: Function,
                 required: true
             }
         },
         template: `
-        <div id="new-weekday">
-            <h4>Change weekday:</h4>
-            <select id="new-weekday-select" name="new-weekday-select" v-model="newWeekday">
-              <option>-- none --</option>
-              <option v-for="(weekday, index) in weekdays"
-                      :key="index">{{ weekday }}
-              </option>
-            </select>
-            <button @click="assignWeekday">Assign</button>
+          <div id="new-weekday">
+          <h4 v-if="recipe.weekday">Change weekday:</h4>
+          <h4 v-else>Assign to weekday:</h4>
+          <select id="new-weekday-select" name="new-weekday-select" v-model="newWeekday">
+            <option v-if="recipe.weekday">-- none --</option>
+            <option v-for="(weekday, index) in weekdays"
+                    :key="index">{{ weekday }}
+            </option>
+          </select>
+          <button @click="assignWeekday">Assign</button>
           </div>
         `,
         data() {
-            return{
+            return {
                 newWeekday: ''
             }
         },
@@ -474,11 +484,13 @@
                 if (this.newWeekday === '-- none --') {
                     this.recipe.weekday = ''
                     this.recipe.image = ''
+                    eventBus.$emit('hide-others')
                 } else {
                     this.recipe.weekday = this.newWeekday
                     this.recipe.image = `img/${this.newWeekday}.jpg`
                     this.removeDuplicates(this.recipe)
                 }
+                eventBus.$emit('update-recipes')
             }
         }
     })
@@ -526,63 +538,20 @@
         el: '#app',
         data: {
             weekdays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-            recipes: [{
-                title: 'potatis',
-                weekday: 'wednesday',
-                ingredients: [{ingredientName: 'potatis', ingredientQty: 4},
-                    {ingredientName: 'ingefära', ingredientQty: 5}],
-                image: 'img/wednesday.jpg',
-                alt: 'potato',
-                position: function () {
-                    switch (this.weekday) {
-                        case 'monday':
-                            return '2 / 1 / 3 / 2';
-                        case 'tuesday':
-                            return '2 / 2 / 3 / 3';
-                        case 'wednesday':
-                            return '2 / 3 / 3 / 4';
-                        case 'thursday':
-                            return '2 / 4 / 3 / 5';
-                        case 'friday':
-                            return '2 / 5 / 3 / 6';
-                        case 'saturday':
-                            return '2 / 6 / 3 / 7';
-                        case 'sunday':
-                            return '2 / 7 / 3 / 8';
-                    }
-                }
-            },
-                {
-                    title: 'rättikor',
-                    weekday: 'monday',
-                    ingredients: [{ingredientName: 'potatis', ingredientQty: 4},
-                        {ingredientName: 'ingefära', ingredientQty: 5}],
-                    image: 'img/monday.jpg',
-                    alt: 'potato',
-                    position: function () {
-                        switch (this.weekday) {
-                            case 'monday':
-                                return '2 / 1 / 3 / 2';
-                            case 'tuesday':
-                                return '2 / 2 / 3 / 3';
-                            case 'wednesday':
-                                return '2 / 3 / 3 / 4';
-                            case 'thursday':
-                                return '2 / 4 / 3 / 5';
-                            case 'friday':
-                                return '2 / 5 / 3 / 6';
-                            case 'saturday':
-                                return '2 / 6 / 3 / 7';
-                            case 'sunday':
-                                return '2 / 7 / 3 / 8';
-                        }
-                    }
-                }]
+            recipes: []
         },
         methods: {
             saveRecipe(recipe) {
                 this.recipes.push(recipe)
             }
+        },
+        mounted() {
+            if (localStorage.getItem('recipes-array')) {
+                this.recipes = JSON.parse(localStorage.getItem('recipes-array'))
+            }
+            eventBus.$on('update-recipes', () => {
+                localStorage.setItem('recipes-array', JSON.stringify(this.recipes))
+            })
         }
     })
 </script>
