@@ -120,7 +120,7 @@ input:focus, select:focus, button:focus{
     grid-template-columns: 1fr 1fr 1fr;
 }
 
-#recipe-list h3 {
+#recipe-header h3 {
     display: inline;
 }
 
@@ -143,6 +143,11 @@ input:focus, select:focus, button:focus{
 input.delete {
     vertical-align: bottom;
     margin-left: 10px;
+}
+
+#todays-recipe input.delete{
+    vertical-align: middle;
+    padding-bottom: 14px;
 }
 
 #new-weekday h4{
