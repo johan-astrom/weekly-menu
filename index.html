@@ -69,172 +69,175 @@
     })
 
     Vue.component('user-interactivity', {
-            props: {
-                recipes: {
-                    type: Array,
-                    required: true
-                },
-                weekdays: {
-                    type: Array,
-                    required: true
+        props: {
+            recipes: {
+                type: Array,
+                required: true
+            },
+            weekdays: {
+                type: Array,
+                required: true
+            }
+        },
+        template: `
+          <section id="user-interactivity">
+          <article id="optionButtons">
+            <button @click="displayForm">Add a recipe</button>
+            <button @click="displayRecipes">Show all recipes</button>
+            <button @click="displayShoppingList">Show this week's shopping list</button>
+          </article>
+          <p v-show="showRecipeSavedMsg">Recipe saved!</p>
+          <form v-show="showForm"
+                @submit.prevent="addRecipe">
+            <p>
+              <label for="title">Enter a recipe name:</label>
+            </p>
+            <p><input id="title"
+                      name="title"
+                      required
+                      v-model="title"/></p>
+            <p><label for="ingredients">Enter an ingredient:</label></p>
+            <p><input id="ingredients"
+                      name="ingredients"
+                      v-model="ingredientName"></p>
+            <p><label for="ingredient-qty">Select a quantity:</label></p>
+            <p><input type="number"
+                      id="ingredient-qty"
+                      name="ingredient-qty"
+                      min="1"
+                      max="50"
+                      v-model="ingredientQty"></p>
+            <p><label for="ingredient-weight">Or, enter weight, measurement, etc:</label></p>
+            <p><input id="ingredient-weight"
+                      name="ingredient-weight"
+                      v-model="ingredientWeight"></p>
+            <p v-if="ingredientQty && ingredientWeight">Please enter either quantity or free text!</p>
+            <p v-if="showIngredientError">Ingredient name required!</p>
+            <p>
+              <button @click.prevent="addIngredient"
+                      :class="{dualOptions: ingredientQty && ingredientWeight}">Add ingredient
+              </button>
+            </p>
+            <p><label for="weekday">Choose a weekday, or leave blank to save the recipe for later:</label></p>
+            <p><select id="weekday"
+                       name="weekday"
+                       v-model="weekday">
+              <option></option>
+              <option v-for="weekday in weekdays">{{ weekday }}</option>
+            </select></p>
+            <p>
+              <input type="submit"
+                     id="submit"
+                     name="submit"
+                     value="Save recipe"></p>
+            <p>
+              <button @click="clearForm" id="cancelForm">Cancel</button>
+            </p>
+          </form>
+          <div>
+            <article v-show="showForm" id="reactive-recipe">
+              <h2 v-show="title.length || ingredients.length">Your recipe:</h2>
+              <h3>{{ title }}</h3>
+              <ul>
+                <li v-for="(ingredient, index) in ingredients"
+                    :key="index">
+                  {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
+                  <input type="image"
+                         src="img/icon/outline_delete_black_24dp.png"
+                         alt="delete"
+                         class="delete"
+                         title="remove ingredient"
+                         @click="removeIngredient(index)">
+                </li>
+              </ul>
+            </article>
+          </div>
+          <section id="display">
+            <todays-recipe :recipes="recipes"
+                           :weekdays="weekdays"
+                           :assign-weekday="assignWeekday"
+                           :new-weekday="newWeekday"></todays-recipe>
+            <recipe-list :recipes="recipes" :weekdays="weekdays" :remove-duplicates="removeDuplicates"></recipe-list>
+            <shopping-list :recipes="recipes"></shopping-list>
+          </section>
+          </section>
+        `,
+        data() {
+            return {
+                showForm: false,
+                showRecipeSavedMsg: false,
+                showIngredientError: false,
+                showRecipeBtn: true,
+                showShoppingListBtn: true,
+                title: '',
+                ingredientName: '',
+                ingredientQty: '',
+                ingredientWeight: '',
+                ingredients: [],
+                weekday: '',
+                image: '',
+                alt: ''
+            }
+        },
+        methods: {
+            displayForm() {
+                eventBus.$emit('hide-others')
+                this.showForm = true
+                this.showRecipeSavedMsg = false
+            },
+            addIngredient() {
+                if (!(this.ingredientWeight && this.ingredientQty)
+                    && this.ingredientName) {
+                    let ingredient = {
+                        ingredientName: this.ingredientName,
+                        ingredientQty: this.ingredientQty,
+                        ingredientWeight: this.ingredientWeight
+                    }
+                    this.ingredients.push(ingredient)
+                    this.clearIngredients()
+                } else if (!this.ingredientName) {
+                    this.showIngredientError = true
                 }
             },
-            template: `
-              <section id="user-interactivity">
-              <article id="optionButtons">
-                <button @click="displayForm">Add a recipe</button>
-                <button @click="displayRecipes">Show all recipes</button>
-                <button @click="displayShoppingList">Show this week's shopping list</button>
-              </article>
-              <p v-show="showRecipeSavedMsg">Recipe saved!</p>
-              <form v-show="showForm"
-                    @submit.prevent="addRecipe">
-                <p>
-                  <label for="title">Enter a recipe name:</label>
-                </p>
-                <p><input id="title"
-                          name="title"
-                          required
-                          v-model="title"/></p>
-                <p><label for="ingredients">Enter an ingredient:</label></p>
-                <p><input id="ingredients"
-                          name="ingredients"
-                          v-model="ingredientName"></p>
-                <p><label for="ingredient-qty">Select a quantity:</label></p>
-                <p><input type="number"
-                          id="ingredient-qty"
-                          name="ingredient-qty"
-                          min="1"
-                          max="50"
-                          v-model="ingredientQty"></p>
-                <p><label for="ingredient-weight">Or, enter weight, measurement, etc:</label></p>
-                <p><input id="ingredient-weight"
-                          name="ingredient-weight"
-                          v-model="ingredientWeight"></p>
-                <p v-if="ingredientQty && ingredientWeight">Please enter either quantity or free text!</p>
-                <p v-if="showIngredientError">Ingredient name required!</p>
-                <p>
-                  <button @click.prevent="addIngredient"
-                          :class="{dualOptions: ingredientQty && ingredientWeight}">Add ingredient
-                  </button>
-                </p>
-                <p><label for="weekday">Choose a weekday, or leave blank to save the recipe for later:</label></p>
-                <p><select id="weekday"
-                           name="weekday"
-                           v-model="weekday">
-                  <option></option>
-                  <option v-for="weekday in weekdays">{{ weekday }}</option>
-                </select></p>
-                <p>
-                  <input type="submit"
-                         id="submit"
-                         name="submit"
-                         value="Save recipe"></p>
-                <p>
-                  <button @click="clearForm" id="cancelForm">Cancel</button>
-                </p>
-              </form>
-              <div>
-                <article v-show="showForm" id="reactive-recipe">
-                  <h2 v-show="title.length || ingredients.length">Your recipe:</h2>
-                  <h3>{{ title }}</h3>
-                  <ul>
-                    <li v-for="(ingredient, index) in ingredients"
-                        :key="index">
-                      {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
-                      <input type="image"
-                             src="img/icon/outline_delete_black_24dp.png"
-                             alt="delete"
-                             class="delete"
-                             title="remove ingredient"
-                             @click="removeIngredient(index)">
-                    </li>
-                  </ul>
-                </article>
-              </div>
-              <section id="display">
-                <todays-recipe :recipes="recipes"></todays-recipe>
-                <recipe-list :recipes="recipes" :weekdays="weekdays" :remove-duplicates="removeDuplicates"></recipe-list>
-                <shopping-list :recipes="recipes"></shopping-list>
-              </section>
-              </section>
-            `,
-            data() {
-                return {
-                    showForm: false,
-                    showRecipeSavedMsg: false,
-                    showIngredientError: false,
-                    showRecipeBtn: true,
-                    showShoppingListBtn: true,
-                    title: '',
-                    ingredientName: '',
-                    ingredientQty: '',
-                    ingredientWeight: '',
-                    ingredients: [],
-                    weekday: '',
-                    image: '',
-                    alt: ''
-                }
+            removeIngredient(index) {
+                this.ingredients.splice(index, 1)
             },
-            methods: {
-                displayForm() {
-                    eventBus.$emit('hide-others')
-                    this.showForm = true
-                    this.showRecipeSavedMsg = false
-                },
-                addIngredient() {
-                    if (!(this.ingredientWeight && this.ingredientQty)
-                        && this.ingredientName) {
-                        let ingredient = {
-                            ingredientName: this.ingredientName,
-                            ingredientQty: this.ingredientQty,
-                            ingredientWeight: this.ingredientWeight
-                        }
-                        this.ingredients.push(ingredient)
-                        this.clearIngredients()
-                    } else if (!this.ingredientName) {
-                        this.showIngredientError = true
-                    }
-                },
-                removeIngredient(index) {
-                    this.ingredients.splice(index, 1)
-                },
-                //todo Gör så man kan välja vecka.
-                addRecipe() {
-                    let recipe = {
-                        title: this.title,
-                        ingredients: this.ingredients.slice(),
-                        weekday: this.weekday,
-                        image: `img/${this.weekday}.jpg`,
-                        alt: this.weekday,
-                        position: function () {
-                            switch (this.weekday) {
-                                case 'monday':
-                                    return '2 / 1 / 3 / 2';
-                                case 'tuesday':
-                                    return '2 / 2 / 3 / 3';
-                                case 'wednesday':
-                                    return '2 / 3 / 3 / 4';
-                                case 'thursday':
-                                    return '2 / 4 / 3 / 5';
-                                case 'friday':
-                                    return '2 / 5 / 3 / 6';
-                                case 'saturday':
-                                    return '2 / 6 / 3 / 7';
-                                case 'sunday':
-                                    return '2 / 7 / 3 / 8';
-                            }
+            //todo Gör så man kan välja vecka.
+            addRecipe() {
+                let recipe = {
+                    title: this.title,
+                    ingredients: this.ingredients.slice(),
+                    weekday: this.weekday,
+                    image: `img/${this.weekday}.jpg`,
+                    alt: this.weekday,
+                    position: function () {
+                        switch (this.weekday) {
+                            case 'monday':
+                                return '2 / 1 / 3 / 2';
+                            case 'tuesday':
+                                return '2 / 2 / 3 / 3';
+                            case 'wednesday':
+                                return '2 / 3 / 3 / 4';
+                            case 'thursday':
+                                return '2 / 4 / 3 / 5';
+                            case 'friday':
+                                return '2 / 5 / 3 / 6';
+                            case 'saturday':
+                                return '2 / 6 / 3 / 7';
+                            case 'sunday':
+                                return '2 / 7 / 3 / 8';
                         }
                     }
-                    this.removeDuplicates(recipe)
-                    this.clearForm()
-                    this.showRecipeSavedMsg = true
+                }
+                this.removeDuplicates(recipe)
+                this.clearForm()
+                this.showRecipeSavedMsg = true
 
-                    this.$emit('save-recipe', recipe)
-                },
-                removeDuplicates(recipe) {
-                    for (let i = 0; i < this.recipes.length; i++) {
-                        if (this.recipes[i] !== recipe) {
+                this.$emit('save-recipe', recipe)
+            },
+            removeDuplicates(recipe) {
+                for (let i = 0; i < this.recipes.length; i++) {
+                    if (this.recipes[i] !== recipe) {
                         if (this.recipes[i].weekday === recipe.weekday) {
                             this.recipes[i].weekday = ''
                         }
@@ -265,22 +268,33 @@
                 this.showShoppingListBtn = false
             }
         },
-        mounted()
-    {
-        eventBus.$on('hide-others', () => {
-            this.showForm = false
-            this.showRecipeSavedMsg = false
-            this.showTodaysRecipe = false
-            this.showRecipeBtn = true
-            this.showShoppingListBtn = true
-        })
-    }
+        mounted() {
+            eventBus.$on('hide-others', () => {
+                this.showForm = false
+                this.showRecipeSavedMsg = false
+                this.showTodaysRecipe = false
+                this.showRecipeBtn = true
+                this.showShoppingListBtn = true
+            })
+        }
     })
 
     Vue.component('todays-recipe', {
         props: {
             recipes: {
                 type: Array,
+                required: true
+            },
+            weekdays: {
+                type: Array,
+                required: true
+            },
+            newWeekday: {
+                type: String,
+                required: true
+            },
+            assignWeekday: {
+                type: Function,
                 required: true
             }
         },
@@ -293,6 +307,16 @@
               {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
             </li>
           </ul>
+          <div id="new-weekday">
+            <h4>Change weekday:</h4>
+            <select id="new-weekday-select" name="new-weekday-select" v-model="newWeekday">
+              <option>-- none --</option>
+              <option v-for="(weekday, index) in weekdays"
+                      :key="index">{{ weekday }}
+              </option>
+            </select>
+            <button @click="assignWeekday">Assign</button>
+          </div>
           </article>
         `,
         data() {
@@ -328,16 +352,19 @@
                 required: true
             }
         },
-        //todo bug - samma namn öppnar båda. Förhindra duplicates eller gå på annat värde. Visa "no recipes"-text
         template: `
           <section id="recipe-list" v-show="showRecipes">
           <button @click="hideRecipes">Hide recipes</button>
-          <ul>
+          <div id="no-recipes-header" v-if="!recipes.length">
+            <h2>No recipes saved!</h2>
+            <h4>Add one by clicking "Add a recipe" to the left.</h4>
+          </div>
+          <ul v-else id="recipe-parent-list">
             <li id="recipes-loop"
-                v-for="recipe in recipes"
-                :key recipe.title
-                @click="selectedTitle = recipe.title"
-                :class="{'active-title': selectedTitle === recipe.title}">
+                v-for="(recipe, index) in recipes"
+                :key="index"
+                @click="selectedIndex = index"
+                :class="{'active-title': selectedIndex === index}">
               <div id="recipe-header">
                 <h3>{{ recipe.title }}</h3>
                 <input type="image"
@@ -345,27 +372,29 @@
                        alt="delete"
                        class="delete"
                        title="delete recipe"
-                       v-show="selectedTitle === recipe.title"
+                       v-show="selectedIndex === index"
                        @click="deleteRecipe">
               </div>
-              <div v-show="selectedTitle === recipe.title">
+              <div v-show="selectedIndex === index">
                 <h4 v-if="recipe.weekday">Recipe for: {{ recipe.weekday }}</h4>
-                <div v-else>
-                  <h4>Assign to weekday:</h4>
-                  <select id="newWeekday" name="newWeekday" v-model="newWeekday">
+                <ul>
+                  <li id="ingredient-list"
+                      v-for="(ingredient, index) in recipe.ingredients"
+                      :key="index">
+                    {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
+                  </li>
+                </ul>
+                <div id="new-weekday">
+                  <h4 v-if="!recipe.weekday">Assign to weekday:</h4>
+                  <h4 v-else>Change weekday:</h4>
+                  <select id="new-weekday-select" name="new-weekday-select" v-model="newWeekday">
+                    <option v-if="recipe.weekday">-- none --</option>
                     <option v-for="(weekday, index) in weekdays"
                             :key="index">{{ weekday }}
                     </option>
                   </select>
                   <button @click="assignWeekday">Assign</button>
                 </div>
-                <ul>
-                  <li
-                      v-for="(ingredient, index) in recipe.ingredients"
-                      :key="index">
-                    {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
-                  </li>
-                </ul>
               </div>
             </li>
           </ul>
@@ -374,33 +403,83 @@
         data() {
             return {
                 showRecipes: false,
-                selectedTitle: '',
+                selectedIndex: '',
                 newWeekday: ''
             }
         },
         methods: {
             hideRecipes() {
                 this.showRecipes = false
-                this.selectedTitle = ''
+                this.selectedIndex = ''
                 eventBus.$emit('hide-others')
             },
             deleteRecipe() {
-                if (confirm('Are you sure you want to delete recipe: ' + this.selectedTitle + '?')) {
-                    let pos = this.recipes.indexOf(this.selectedTitle)
-                    this.recipes.splice(pos, 1)
+                if (confirm('Are you sure you want to delete recipe: ' + this.recipes[this.selectedIndex].title + '?')) {
+                    this.recipes.splice(this.selectedIndex, 1)
                 }
             },
             assignWeekday() {
-                let recipe = this.recipes.find(x => x.title === this.selectedTitle)
-                recipe.weekday = this.newWeekday
-                recipe.image = `img/${this.newWeekday}.jpg`
-                this.removeDuplicates(recipe)
+                let recipe = this.recipes[this.selectedIndex]
+                if (this.newWeekday === '-- none --') {
+                    recipe.weekday = ''
+                    recipe.image = ''
+                } else {
+                    recipe.weekday = this.newWeekday
+                    recipe.image = `img/${this.newWeekday}.jpg`
+                    this.removeDuplicates(recipe)
+                }
             }
         },
         mounted() {
             eventBus.$on('hide-others', () => this.showRecipes = false)
             eventBus.$on('show-recipes', () => this.showRecipes = true
             )
+        }
+    })
+
+    Vue.component('change-weekday', {
+        props: {
+            weekdays: {
+                type: Array,
+                required: true
+            },
+            recipe: {
+                type: Object,
+                required: true
+            },
+            removeDuplicates:{
+                type: Function,
+                required: true
+            }
+        },
+        template: `
+        <div id="new-weekday">
+            <h4>Change weekday:</h4>
+            <select id="new-weekday-select" name="new-weekday-select" v-model="newWeekday">
+              <option>-- none --</option>
+              <option v-for="(weekday, index) in weekdays"
+                      :key="index">{{ weekday }}
+              </option>
+            </select>
+            <button @click="assignWeekday">Assign</button>
+          </div>
+        `,
+        data() {
+            return{
+                newWeekday: ''
+            }
+        },
+        methods: {
+            assignWeekday() {
+                if (this.newWeekday === '-- none --') {
+                    this.recipe.weekday = ''
+                    this.recipe.image = ''
+                } else {
+                    this.recipe.weekday = this.newWeekday
+                    this.recipe.image = `img/${this.newWeekday}.jpg`
+                    this.removeDuplicates(this.recipe)
+                }
+            }
         }
     })
 

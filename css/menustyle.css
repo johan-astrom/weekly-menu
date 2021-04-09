@@ -128,7 +128,15 @@ input:focus, select:focus, button:focus{
     margin-top: 10px;
 }
 
+#recipe-parent-list{
+    margin-top: 30px;
+}
+
 #recipes-loop{
+    margin-top: 20px;
+}
+
+#ingredient-list:first-of-type{
     margin-top: 20px;
 }
 
@@ -137,12 +145,30 @@ input.delete {
     margin-left: 10px;
 }
 
+#new-weekday h4{
+    display: inline;
+}
+
+#new-weekday select{
+    margin-left: 15px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+#new-weekday button{
+    width: 100px;
+}
+
 article#shopping-list ul {
     list-style-type: none;
 }
 
 #recipe-list h3:hover {
     text-decoration: underline;
+}
+
+#recipe-list #no-recipes-header{
+    margin-top: 30px;
 }
 
 .active-title h3 {
