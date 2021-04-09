@@ -146,17 +146,16 @@ input.delete {
 }
 
 #new-weekday h4{
-    display: inline;
+    margin-bottom: 10px;
 }
 
 #new-weekday select{
-    margin-left: 15px;
-    margin-bottom: 20px;
-    margin-top: 20px;
+    margin-right: 20px;
 }
 
 #new-weekday button{
     width: 100px;
+    margin-bottom: 30px;
 }
 
 article#shopping-list ul {
@@ -181,4 +180,14 @@ article#shopping-list ul {
 
 #shopping-list li{
     line-height: 200%;
+}
+
+#shopping-list img{
+    vertical-align: middle;
+    margin-left: 4px;
+    padding-bottom: 5px;
+}
+
+.greenMarked{
+    color: #A0A603;
 }

@@ -212,7 +212,8 @@
                     let ingredient = {
                         ingredientName: this.ingredientName,
                         ingredientQty: this.ingredientQty,
-                        ingredientWeight: this.ingredientWeight
+                        ingredientWeight: this.ingredientWeight,
+                        purchased: false
                     }
                     this.ingredients.push(ingredient)
                     this.clearIngredients()
@@ -331,7 +332,7 @@
           <change-weekday :weekdays="weekdays"
                           :remove-duplicates="removeDuplicates"
                           :recipe="todaysRecipe"></change-weekday>
-          <button @click="updateRecipe">Update recipe</button>
+          <button @click="updateRecipe">Update recipe info</button>
           </article>
         `,
         data() {
@@ -371,7 +372,6 @@
                 required: true
             }
         },
-        //todo lägg till edit-funktionalitet
         template: `
           <section id="recipe-list" v-show="showRecipes">
           <button @click="hideRecipes">Hide recipes</button>
@@ -407,7 +407,7 @@
                 <change-weekday :weekdays="weekdays"
                                 :remove-duplicates="removeDuplicates"
                                 :recipe="recipe"></change-weekday>
-                <button @click="updateRecipe">Update recipe</button>
+                <button @click="updateRecipe">Update recipe info</button>
               </div>
             </li>
           </ul>
@@ -511,21 +511,40 @@
               v-if="recipe.weekday">
             <li
                 v-for="(ingredient, index) in recipe.ingredients"
-                :key="index">
+                :key="index"
+                @mouseover="hoveredItem=ingredient"
+                @mouseleave="hoveredItem=''"
+                :class="{greenMarked: ingredient.purchased}">
               {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
+                <img v-if="!ingredient.purchased"
+                     v-show="hoveredItem===ingredient"
+                     @click="changePurchased(ingredient)"
+                     src="img/icon/outline_check_circle_black_24dp.png"
+                     alt="check">
+              <img v-if="ingredient.purchased"
+                     v-show="hoveredItem===ingredient"
+                     @click="changePurchased(ingredient)"
+                     src="img/icon/outline_clear_black_24dp.png"
+                   alt="uncheck">
             </li>
           </ul>
           </article>
         `,
         data() {
             return {
-                showShoppingList: false
+                showShoppingList: false,
+                isDone: new Array(100),
+                hoveredItem: ''
             }
         },
         methods: {
             hideShoppingList() {
                 this.showShoppingList = false
                 eventBus.$emit('hide-others')
+            },
+            changePurchased(ingredient){
+              ingredient.purchased = !ingredient.purchased
+                eventBus.$emit('update-ingredients')
             }
         },
         mounted() {
