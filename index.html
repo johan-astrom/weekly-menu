@@ -385,30 +385,9 @@
                 :key="index"
                 @click="selectedIndex = index"
                 :class="{'active-title': selectedIndex === index}">
-              <div id="recipe-header">
-                <h3>{{ recipe.title }}</h3>
-                <input type="image"
-                       src="img/icon/outline_delete_black_24dp.png"
-                       alt="delete"
-                       class="delete"
-                       title="delete recipe"
-                       v-show="selectedIndex === index"
-                       @click="deleteRecipe">
-              </div>
-              <div v-show="selectedIndex === index">
-                <h4 v-if="recipe.weekday">Recipe for: {{ recipe.weekday }}</h4>
-                <ul>
-                  <li id="ingredient-list"
-                      v-for="(ingredient, index) in recipe.ingredients"
-                      :key="index">
-                    {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
-                  </li>
-                </ul>
-                <change-weekday :weekdays="weekdays"
-                                :remove-duplicates="removeDuplicates"
-                                :recipe="recipe"></change-weekday>
-                <button @click="updateRecipe">Update recipe info</button>
-              </div>
+
+
+
             </li>
           </ul>
           </section>
@@ -444,6 +423,36 @@
             })
             eventBus.$on('show-recipes', () => this.showRecipes = true)
         }
+    })
+
+    Vue.component('recipe-info', {
+        template:
+            `
+        <div id="recipe-header">
+                <h3>{{ recipe.title }}</h3>
+                <input type="image"
+                       src="img/icon/outline_delete_black_24dp.png"
+                       alt="delete"
+                       class="delete"
+                       title="delete recipe"
+                       v-show="selectedIndex === index"
+                       @click="deleteRecipe">
+              </div>
+              <div v-show="selectedIndex === index">
+                <h4 v-if="recipe.weekday">Recipe for: {{ recipe.weekday }}</h4>
+                <ul>
+                  <li id="ingredient-list"
+                      v-for="(ingredient, index) in recipe.ingredients"
+                      :key="index">
+                    {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
+                  </li>
+                </ul>
+                <change-weekday :weekdays="weekdays"
+                                :remove-duplicates="removeDuplicates"
+                                :recipe="recipe"></change-weekday>
+                <button @click="updateRecipe">Update recipe info</button>
+              </div>
+        `
     })
 
     Vue.component('change-weekday', {
