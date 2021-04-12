@@ -52,6 +52,10 @@ main {
     text-align: center;
 }
 
+#hide-recipes, #hide-shoppinglist{
+    display: none;
+}
+
 #recipe-list ul li:first-child {
     margin-top: 5px;
 }
@@ -179,22 +183,37 @@ input.delete {
     margin-left: 7px;
 }
 
+#recipe-header{
+    font-size: 22px;
+}
+
+#recipe-info input.delete{
+    max-width: 60px;
+}
+
+#reactive-recipe h2{
+    font-size: 22px;
+}
+
 #todays-recipe input.delete {
     vertical-align: middle;
     padding-bottom: 14px;
 }
 
 #new-weekday h4 {
+    font-size: 20px;
     margin-bottom: 10px;
 }
 
 #new-weekday select {
-    margin-right: 20px;
+    margin-right: 18px;
+    display: inline-block;
 }
 
 #new-weekday button {
     width: 100px;
-    margin-bottom: 30px;
+    margin: 5px 0 20px;
+    display: inline-block;
 }
 
 article#shopping-list ul {
@@ -272,12 +291,16 @@ article#shopping-list ul {
         text-align: left;
     }
 
+    #hide-recipes, #hide-shoppinglist{
+        display: block;
+        margin: 0 0;
+    }
+
     button {
         display: inline;
         width: 250px;
         margin: 2px auto;
     }
-
 
     button, input[type=submit] {
         font-size: 16px;
@@ -288,7 +311,6 @@ article#shopping-list ul {
     form button, input[type=submit] {
         display: inline;
     }
-
 
     input, select {
         padding: 5px;
@@ -302,9 +324,13 @@ article#shopping-list ul {
     }
 
     input.delete {
-        max-width: 12%;
+        max-width: 35px;
         vertical-align: bottom;
         margin-left: 10px;
+    }
+
+    #recipe-info input.delete{
+        max-width: 35px;
     }
 
     #recipes-loop{

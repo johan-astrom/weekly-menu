@@ -374,7 +374,7 @@
         },
         template: `
           <section id="recipe-list" v-show="showRecipes">
-          <button @click="hideRecipes">Hide recipes</button>
+          <button id="hide-recipes" @click="hideRecipes">Hide recipes</button>
           <div id="no-recipes-header" v-if="!recipes.length">
             <h2>No recipes saved!</h2>
             <h4>Add one by clicking "Add a recipe" to the left.</h4>
@@ -555,7 +555,7 @@
         },
         template: `
           <article id="shopping-list" v-show="showShoppingList">
-          <button @click="hideShoppingList">Hide shopping list</button>
+          <button id="hide-shoppinglist" @click="hideShoppingList">Hide shopping list</button>
           <h2>This week's shopping list:</h2>
           <ul v-for="(recipe, index) in recipes"
               :key="index"
