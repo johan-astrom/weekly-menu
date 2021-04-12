@@ -94,7 +94,6 @@ article#optionButtons button {
 button {
     width: 90%;
     display: block;
-    margin: 30px auto;
     height: 65px;
 }
 
@@ -109,13 +108,13 @@ button, input[type=submit] {
     background-color: #FFF;
     border: 2px solid black;
     transition: 0.2s;
-    margin-right: 20px;
     height: 65px;
 
 }
 
 input[type=submit] {
     margin-top: 20px;
+    margin-bottom: 15px;
     border: 3px solid #A0A603;
 }
 
@@ -319,12 +318,20 @@ article#shopping-list ul {
         height: 48px;
     }
 
+    input[type=submit] {
+        margin-bottom: 7px;
+    }
+
     form button, input[type=submit] {
         display: inline;
     }
 
     input, select {
         padding: 5px;
+    }
+
+    input[type=number]{
+        width: 80px;
     }
 
     select{
