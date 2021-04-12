@@ -6,13 +6,20 @@ body {
     padding-bottom: 30px;
 }
 
-ul{
-    list-style-position: inside;
+/*todo optimera detta.. wrapa tex när man visar långa rubriker. */
+h1, h2, h3, h4, figcaption, p, li{
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 ul li {
     line-height: 175%;
     font-size: 18px;
+}
+
+li{
+    margin: 0 50px;
 }
 
 header h1 {
@@ -33,13 +40,19 @@ article#week-grid {
     display: grid;
     grid-template-columns: repeat(7, calc(40% - 40px));
     overflow-x: auto;
-    grid-template-rows: 50px 3fr;
+    grid-template-rows: 100px 3fr;
     grid-gap: 30px;
     border: 2px solid #A0A603;
     border-right: none;
     justify-items: center;
     margin-bottom: 30px;
     padding: 10px 30px;
+}
+
+#week-grid figcaption{
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 main {
@@ -183,6 +196,11 @@ input.delete {
     margin-left: 7px;
 }
 
+#recipe-info input.delete {
+    vertical-align: middle;
+    padding-bottom: 20px;
+}
+
 #recipe-header{
     font-size: 22px;
 }
@@ -193,11 +211,6 @@ input.delete {
 
 #reactive-recipe h2{
     font-size: 22px;
-}
-
-#todays-recipe input.delete {
-    vertical-align: middle;
-    padding-bottom: 14px;
 }
 
 #new-weekday h4 {
@@ -222,10 +235,6 @@ article#shopping-list ul {
 
 #recipe-list h3:hover {
     text-decoration: underline;
-}
-
-#recipes-loop{
-    list-style-position: inside;
 }
 
 #recipes-loop > *{
@@ -269,10 +278,14 @@ article#shopping-list ul {
         list-style-position: outside;
     }
 
+    li{
+        margin: 0 0;
+    }
+
     article#week-grid {
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
-        grid-template-rows: 50px 3fr;
+        grid-template-rows: 70px 200px;
         grid-gap: 30px;
         border: 2px solid #A0A603;
         justify-items: center;
@@ -286,7 +299,7 @@ article#shopping-list ul {
 
     #user-interactivity {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         margin-top: 40px;
         text-align: left;
     }
@@ -317,7 +330,7 @@ article#shopping-list ul {
     }
 
     select{
-        width: 170px;
+        width: 120px;
         font-size: 16px;
         height: 40px;
         text-align-last: left;
@@ -329,7 +342,9 @@ article#shopping-list ul {
         margin-left: 10px;
     }
 
-    #recipe-info input.delete{
+    #recipe-info input.delete {
+        vertical-align: middle;
+        padding-bottom: 14px;
         max-width: 35px;
     }
 
