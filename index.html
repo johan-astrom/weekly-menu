@@ -108,7 +108,8 @@
             <button @click="displayShoppingList">Show this week's shopping list</button>
           </article>
           <p v-show="showRecipeSavedMsg">Recipe saved!</p>
-          <form v-show="showForm"
+          <form id="recipe-form"
+                v-show="showForm"
                 @submit.prevent="addRecipe">
             <p>
               <label for="title">Enter a recipe name:</label>
@@ -139,7 +140,7 @@
                       :class="{dualOptions: ingredientQty && ingredientWeight}">Add ingredient
               </button>
             </p>
-            <p><label for="weekday">Choose a weekday, or leave blank to save the recipe for later:</label></p>
+            <p><label for="weekday">Choose a weekday (optional):</label></p>
             <p><select id="weekday"
                        name="weekday"
                        v-model="weekday">
@@ -472,7 +473,7 @@
                                     :remove-duplicates="removeDuplicates"
                                     :recipe="recipe"
                                     :assigned-weekday="recipe.weekday"></change-weekday>
-                    <button @click="updateRecipe">Update recipe info</button>
+                    <button id="update-button" @click="updateRecipe">Update recipe info</button>
                   </div>
                   </article>
                 `,

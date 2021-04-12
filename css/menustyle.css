@@ -33,7 +33,7 @@ article#week-grid {
     display: grid;
     grid-template-columns: repeat(7, calc(40% - 40px));
     overflow-x: auto;
-    grid-template-rows: 100px 3fr;
+    grid-template-rows: 70px 200px;
     grid-gap: 30px;
     border: 2px solid #A0A603;
     border-right: none;
@@ -93,8 +93,11 @@ article#optionButtons button {
 
 button {
     width: 90%;
-    display: block;
     height: 65px;
+}
+
+#recipe-form p{
+    margin-bottom: 20px;
 }
 
 form button, input[type=submit] {
@@ -137,11 +140,11 @@ input{
 select{
     width: 50%;
     font-size: 16px;
-    height: 60px;
+    height: 40px;
     text-align-last: center;
 }
 
-input, select {
+input, select{
     padding: 10px 15px;
     box-sizing: border-box;
 }
@@ -163,6 +166,7 @@ input:focus, select:focus, button:focus {
 
 #recipe-header h3 {
     display: inline;
+    margin-top: 0;
 }
 
 #recipe-list #header {
@@ -182,28 +186,24 @@ input:focus, select:focus, button:focus {
 }
 
 input.delete {
-    max-width: 12%;
+    max-width: 34px;
     height: auto;
-    vertical-align: bottom;
-    margin-left: 7px;
+    margin-top: 0;
+    padding: 0;
+    margin-left: 10px;
 }
 
-#recipe-info input.delete {
-    vertical-align: middle;
-    padding-bottom: 20px;
-}
 
 #recipe-header{
     font-size: 22px;
-}
-
-#recipe-info input.delete{
-    max-width: 60px;
+    display: flex;
+    align-items: flex-start;
+    text-align: center;
+    justify-content: center;
 }
 
 #recipe-info, #reactive-recipe, #shopping-list{
-    word-wrap: break-word;
-    word-break: break-all;
+    word-wrap: normal;
 }
 
 #reactive-recipe h2{
@@ -216,14 +216,19 @@ input.delete {
 }
 
 #new-weekday select {
+    width: 150px;
     margin-right: 18px;
     display: inline-block;
 }
 
 #new-weekday button {
-    width: 100px;
-    margin: 5px 0 20px;
+    width: 150px;
+    margin: 5px 0 25px;
     display: inline-block;
+}
+
+#update-button{
+    width: 318px;
 }
 
 article#shopping-list ul {
@@ -341,16 +346,11 @@ article#shopping-list ul {
         text-align-last: left;
     }
 
-    input.delete {
-        max-width: 35px;
-        vertical-align: bottom;
-        margin-left: 10px;
-    }
 
-    #recipe-info input.delete {
-        vertical-align: middle;
-        padding-bottom: 14px;
-        max-width: 35px;
+    input.delete {
+        max-width: 34px;
+        height: auto;
+        margin-left: 10px;
     }
 
     #recipes-loop{
@@ -359,6 +359,23 @@ article#shopping-list ul {
 
     #recipe-info{
         display: inline-block;
+        text-align: center;
+    }
+
+    #new-weekday select {
+        width: 120px;
+        margin-right: 14px;
+        display: inline-block;
+    }
+
+    #new-weekday button {
+        width: 100px;
+        margin: 5px 0 20px;
+        display: inline-block;
+    }
+
+    #update-button{
+        width: 234px;
     }
 
 }
