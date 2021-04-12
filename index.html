@@ -320,7 +320,6 @@
                 required: true
             }
         },
-        //todo recept syns vid deletion
         template: `
           <article v-show="showTodaysRecipe" id="todays-recipe">
           <recipe-info
@@ -446,7 +445,7 @@
         },
         template:
                 `
-                  <article>
+                  <article v-show="!deleted">
                   <div id="recipe-header">
                     <h3>{{ recipe.title }}</h3>
                     <input type="image"
@@ -476,12 +475,15 @@
                   </article>
                 `,
         data() {
-            return {}
+            return {
+                deleted: false
+            }
         },
         methods: {
             deleteRecipe() {
                 if (confirm('Are you sure you want to delete recipe: ' + this.recipes[this.selectedIndex].title + '?')) {
                     this.recipes.splice(this.selectedIndex, 1)
+                    this.deleted = true
                     eventBus.$emit('update-recipes')
                 }
             },
@@ -490,6 +492,9 @@
                 eventBus.$emit('hide-others')
                 eventBus.$emit('update-recipe', index)
             }
+        },
+        mounted() {
+            eventBus.$on('show-recipe', () => this.deleted = false)
         }
     })
 
