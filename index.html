@@ -20,6 +20,7 @@
                         @save-recipe="saveRecipe"
     ></user-interactivity>
   </main>
+
 </section>
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 <script>
@@ -445,7 +446,7 @@
         },
         template:
                 `
-                  <article v-show="!deleted">
+                  <article v-show="!deleted" id="recipe-info">
                   <div id="recipe-header">
                     <h3>{{ recipe.title }}</h3>
                     <input type="image"
@@ -465,7 +466,6 @@
                         {{ ingredient.ingredientWeight }}
                       </li>
                     </ul>
-                    <h4 v-if="recipe.weekday">Recipe for: {{ recipe.weekday }}</h4>
                     <change-weekday :weekdays="weekdays"
                                     :remove-duplicates="removeDuplicates"
                                     :recipe="recipe"
