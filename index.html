@@ -324,12 +324,12 @@
         template: `
           <article v-show="showTodaysRecipe" id="todays-recipe">
           <recipe-info
-          :weekdays="weekdays"
-          :recipes="recipes"
-          :recipe="todaysRecipe"
-          :remove-duplicates="removeDuplicates"
-          :index="recipes.indexOf(todaysRecipe)"
-          :selected-index="recipes.indexOf(todaysRecipe)"
+              :weekdays="weekdays"
+              :recipes="recipes"
+              :recipe="todaysRecipe"
+              :remove-duplicates="removeDuplicates"
+              :index="recipes.indexOf(todaysRecipe)"
+              :selected-index="recipes.indexOf(todaysRecipe)"
           ></recipe-info>
           </article>
         `,
@@ -389,7 +389,7 @@
                   :recipes="recipes"
                   :recipe="recipe"
                   :index="index"
-              :selected-index="selectedIndex"></recipe-info>
+                  :selected-index="selectedIndex"></recipe-info>
 
             </li>
           </ul>
@@ -458,7 +458,6 @@
                            @click="deleteRecipe">
                   </div>
                   <div v-show="selectedIndex === index">
-                    <h4 v-if="recipe.weekday">Recipe for: {{ recipe.weekday }}</h4>
                     <ul>
                       <li id="ingredient-list"
                           v-for="(ingredient, index) in recipe.ingredients"
@@ -467,16 +466,17 @@
                         {{ ingredient.ingredientWeight }}
                       </li>
                     </ul>
+                    <h4 v-if="recipe.weekday">Recipe for: {{ recipe.weekday }}</h4>
                     <change-weekday :weekdays="weekdays"
                                     :remove-duplicates="removeDuplicates"
-                                    :recipe="recipe"></change-weekday>
+                                    :recipe="recipe"
+                                    :assigned-weekday="recipe.weekday"></change-weekday>
                     <button @click="updateRecipe">Update recipe info</button>
                   </div>
                   </article>
                 `,
         data() {
-            return {
-            }
+            return {}
         },
         methods: {
             deleteRecipe() {
@@ -506,13 +506,17 @@
             removeDuplicates: {
                 type: Function,
                 required: true
+            },
+            assignedWeekday: {
+                type: String,
+                required: true
             }
         },
         template: `
           <div id="new-weekday">
           <h4 v-if="recipe.weekday">Change weekday:</h4>
           <h4 v-else>Assign to weekday:</h4>
-          <select id="new-weekday-select" name="new-weekday-select" v-model="newWeekday">
+          <select id="new-weekday-select" name="new-weekday-select" v-model="assignedWeekday">
             <option v-if="recipe.weekday">-- none --</option>
             <option v-for="(weekday, index) in weekdays"
                     :key="index">{{ weekday }}
@@ -522,19 +526,17 @@
           </div>
         `,
         data() {
-            return {
-                newWeekday: ''
-            }
+            return {}
         },
         methods: {
             assignWeekday() {
-                if (this.newWeekday === '-- none --') {
+                if (this.assignedWeekday === '-- none --') {
                     this.recipe.weekday = ''
                     this.recipe.image = ''
                     eventBus.$emit('hide-others')
                 } else {
-                    this.recipe.weekday = this.newWeekday
-                    this.recipe.image = `img/${this.newWeekday}.jpg`
+                    this.recipe.weekday = this.assignedWeekday
+                    this.recipe.image = `img/${this.assignedWeekday}.jpg`
                     this.removeDuplicates(this.recipe)
                 }
                 eventBus.$emit('update-recipes')
