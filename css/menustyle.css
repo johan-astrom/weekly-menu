@@ -6,13 +6,8 @@ body {
     padding-bottom: 30px;
 }
 
-
 ul li {
     line-height: 175%;
-}
-
-#recipe-list ul li:first-child {
-    margin-top: 5px;
 }
 
 header h1 {
@@ -29,23 +24,35 @@ header h1 {
     margin-bottom: 50px;
 }
 
-main {
-    margin: 0 180px;
-}
-
-article#optionButtons button{
-    margin-bottom: 40px;
-}
-
 article#week-grid {
     display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-columns: repeat(7, calc(40% - 40px));
+    overflow-x: auto;
     grid-template-rows: 50px 3fr;
     grid-gap: 30px;
     border: 2px solid #A0A603;
+    border-right: none;
     justify-items: center;
     margin-bottom: 30px;
     padding: 10px 30px;
+}
+
+main {
+    margin: 0 10px;
+}
+
+#user-interactivity {
+    display: block;
+    margin-top: 50px;
+}
+
+#recipe-list ul li:first-child {
+    margin-top: 5px;
+}
+
+
+article#optionButtons button {
+    margin-bottom: 40px;
 }
 
 #week-grid figure {
@@ -68,9 +75,12 @@ article#week-grid {
     height: auto;
 }
 
+
 button {
-    width: 250px;
-    height: 48px;
+    width: 90%;
+    height: 65px;
+    display: block;
+    margin: 30px auto;
 }
 
 form button, input[type=submit] {
@@ -78,7 +88,7 @@ form button, input[type=submit] {
 }
 
 button, input[type=submit] {
-    font-size: 16px;
+    font-size: 20px;
     padding: 13px;
     background-color: #FFF;
     border: 2px solid black;
@@ -101,43 +111,38 @@ input, select {
     padding: 5px;
 }
 
-input:focus, select:focus, button:focus{
+input:focus, select:focus, button:focus {
     outline: none;
     border-color: #F2CEAE;
 }
 
-.dualOptions{
+.dualOptions {
     color: lightgray;
     border-color: lightgray;
 }
 
-.dualOptions:hover{
+.dualOptions:hover {
     background-color: white;
     border-color: lightgray;
-}
-
-#user-interactivity {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
 }
 
 #recipe-header h3 {
     display: inline;
 }
 
-#recipe-list #header{
+#recipe-list #header {
     margin-top: 10px;
 }
 
-#recipe-parent-list{
+#recipe-parent-list {
     margin-top: 30px;
 }
 
-#recipes-loop{
+#recipes-loop {
     margin-top: 20px;
 }
 
-#ingredient-list:first-of-type{
+#ingredient-list:first-of-type {
     margin-top: 20px;
 }
 
@@ -146,20 +151,20 @@ input.delete {
     margin-left: 10px;
 }
 
-#todays-recipe input.delete{
+#todays-recipe input.delete {
     vertical-align: middle;
     padding-bottom: 14px;
 }
 
-#new-weekday h4{
+#new-weekday h4 {
     margin-bottom: 10px;
 }
 
-#new-weekday select{
+#new-weekday select {
     margin-right: 20px;
 }
 
-#new-weekday button{
+#new-weekday button {
     width: 100px;
     margin-bottom: 30px;
 }
@@ -172,7 +177,7 @@ article#shopping-list ul {
     text-decoration: underline;
 }
 
-#recipe-list #no-recipes-header{
+#recipe-list #no-recipes-header {
     margin-top: 30px;
 }
 
@@ -180,20 +185,58 @@ article#shopping-list ul {
     color: #A0A603;
 }
 
-#shopping-list ul{
+#shopping-list ul {
     margin: 0 auto;
 }
 
-#shopping-list li{
+#shopping-list li {
     line-height: 200%;
 }
 
-#shopping-list img{
+#shopping-list img {
     vertical-align: middle;
     margin-left: 4px;
     padding-bottom: 5px;
 }
 
-.greenMarked{
+.greenMarked {
     color: #A0A603;
+}
+
+
+@media screen and (min-width: 1024px) {
+
+    article#week-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        grid-template-rows: 50px 3fr;
+        grid-gap: 30px;
+        border: 2px solid #A0A603;
+        justify-items: center;
+        margin-bottom: 30px;
+        padding: 10px 30px;
+    }
+
+    main {
+        margin: 0 180px;
+    }
+
+    #user-interactivity {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        margin-top: 40px;
+    }
+
+    button {
+        display: inline;
+        width: 250px;
+        height: 48px;
+        margin: 2px auto;
+    }
+
+
+    button, input[type=submit] {
+        font-size: 16px;
+        padding: 13px;
+    }
 }

@@ -41,9 +41,9 @@
         template: `
           <article id="week-grid">
           <h2 v-for="weekday in weekdays">{{ weekday }}</h2>
-          <figure v-for="recipe in recipes"
+          <figure v-for="(recipe, index) in recipes"
                   v-if="recipe.weekday"
-                  :key="recipe.title"
+                  :key="index"
                   :style="{gridArea: position(recipe)}"
                   @mouseover="hoveredWeekday=recipe.weekday"
                   @mouseleave="hoveredWeekday=''"
@@ -352,6 +352,8 @@
         mounted() {
             eventBus.$on('hide-others', () => this.showTodaysRecipe = false)
             eventBus.$on('show-recipe', (weekday) => this.displayTodaysRecipe(weekday))
+            eventBus.$on('recipe-deletion', () => this.showTodaysRecipe = false)
+
         }
     })
 
@@ -413,10 +415,12 @@
                 this.showRecipes = false
                 this.selectedIndex = ''
             })
+            eventBus.$on('update-recipes', () => this.selectedIndex = '')
             eventBus.$on('show-recipes', () => this.showRecipes = true)
         }
     })
 
+    //todo selectedIndex kvar vid delete
     Vue.component('recipe-info', {
         props: {
             recipe: {
@@ -436,17 +440,15 @@
                 required: true
             },
             index: {
-                type: Number,
                 required: true
             },
             selectedIndex: {
-                type: Number,
                 required: true
             }
         },
         template:
                 `
-                  <article v-show="!deleted" id="recipe-info">
+                  <article id="recipe-info">
                   <div id="recipe-header">
                     <h3>{{ recipe.title }}</h3>
                     <input type="image"
@@ -475,16 +477,14 @@
                   </article>
                 `,
         data() {
-            return {
-                deleted: false
-            }
+            return {}
         },
         methods: {
             deleteRecipe() {
                 if (confirm('Are you sure you want to delete recipe: ' + this.recipes[this.selectedIndex].title + '?')) {
                     this.recipes.splice(this.selectedIndex, 1)
-                    this.deleted = true
                     eventBus.$emit('update-recipes')
+                    eventBus.$emit('recipe-deletion')
                 }
             },
             updateRecipe() {
@@ -492,9 +492,6 @@
                 eventBus.$emit('hide-others')
                 eventBus.$emit('update-recipe', index)
             }
-        },
-        mounted() {
-            eventBus.$on('show-recipe', () => this.deleted = false)
         }
     })
 
@@ -560,8 +557,8 @@
           <article id="shopping-list" v-show="showShoppingList">
           <button @click="hideShoppingList">Hide shopping list</button>
           <h2>This week's shopping list:</h2>
-          <ul v-for="recipe in recipes"
-              :key="recipe.title"
+          <ul v-for="(recipe, index) in recipes"
+              :key="index"
               v-if="recipe.weekday">
             <li
                 v-for="(ingredient, index) in recipe.ingredients"
