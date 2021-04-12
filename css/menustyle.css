@@ -6,13 +6,6 @@ body {
     padding-bottom: 30px;
 }
 
-/*todo optimera detta.. wrapa tex när man visar långa rubriker. */
-h1, h2, h3, h4, figcaption, p, li{
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
 ul li {
     line-height: 175%;
     font-size: 18px;
@@ -207,6 +200,11 @@ input.delete {
 
 #recipe-info input.delete{
     max-width: 60px;
+}
+
+#recipe-info, #reactive-recipe, #shopping-list{
+    word-wrap: break-word;
+    word-break: break-all;
 }
 
 #reactive-recipe h2{
