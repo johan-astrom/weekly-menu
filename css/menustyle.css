@@ -6,8 +6,13 @@ body {
     padding-bottom: 30px;
 }
 
+ul{
+    list-style-position: inside;
+}
+
 ul li {
     line-height: 175%;
+    font-size: 18px;
 }
 
 header h1 {
@@ -44,6 +49,7 @@ main {
 #user-interactivity {
     display: block;
     margin-top: 50px;
+    text-align: center;
 }
 
 #recipe-list ul li:first-child {
@@ -75,16 +81,16 @@ article#optionButtons button {
     height: auto;
 }
 
-
 button {
     width: 90%;
-    height: 65px;
     display: block;
     margin: 30px auto;
+    height: 65px;
 }
 
 form button, input[type=submit] {
-    width: 150px;
+    display: inline-block;
+    width: 40%;
 }
 
 button, input[type=submit] {
@@ -94,6 +100,8 @@ button, input[type=submit] {
     border: 2px solid black;
     transition: 0.2s;
     margin-right: 20px;
+    height: 65px;
+
 }
 
 input[type=submit] {
@@ -107,8 +115,26 @@ button:hover, input[type=submit]:hover {
     transition: 0.2s;
 }
 
+label{
+    font-size: 20px;
+}
+
+input{
+    width: 60%;
+    height: 40px;
+    font-size: 18px;
+}
+
+select{
+    width: 50%;
+    font-size: 16px;
+    height: 60px;
+    text-align-last: center;
+}
+
 input, select {
-    padding: 5px;
+    padding: 10px 15px;
+    box-sizing: border-box;
 }
 
 input:focus, select:focus, button:focus {
@@ -147,8 +173,10 @@ input:focus, select:focus, button:focus {
 }
 
 input.delete {
+    max-width: 12%;
+    height: auto;
     vertical-align: bottom;
-    margin-left: 10px;
+    margin-left: 7px;
 }
 
 #todays-recipe input.delete {
@@ -175,6 +203,18 @@ article#shopping-list ul {
 
 #recipe-list h3:hover {
     text-decoration: underline;
+}
+
+#recipes-loop{
+    list-style-position: inside;
+}
+
+#recipes-loop > *{
+    vertical-align: text-top;
+}
+
+#recipe-info{
+    display: inline-block;
 }
 
 #recipe-list #no-recipes-header {
@@ -206,6 +246,10 @@ article#shopping-list ul {
 
 @media screen and (min-width: 1024px) {
 
+    ul{
+        list-style-position: outside;
+    }
+
     article#week-grid {
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -225,12 +269,12 @@ article#shopping-list ul {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         margin-top: 40px;
+        text-align: left;
     }
 
     button {
         display: inline;
         width: 250px;
-        height: 48px;
         margin: 2px auto;
     }
 
@@ -238,5 +282,37 @@ article#shopping-list ul {
     button, input[type=submit] {
         font-size: 16px;
         padding: 13px;
+        height: 48px;
     }
+
+    form button, input[type=submit] {
+        display: inline;
+    }
+
+
+    input, select {
+        padding: 5px;
+    }
+
+    select{
+        width: 170px;
+        font-size: 16px;
+        height: 40px;
+        text-align-last: left;
+    }
+
+    input.delete {
+        max-width: 12%;
+        vertical-align: bottom;
+        margin-left: 10px;
+    }
+
+    #recipes-loop{
+        list-style-position: outside;
+    }
+
+    #recipe-info{
+        display: inline-block;
+    }
+
 }
