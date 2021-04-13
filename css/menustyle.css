@@ -15,6 +15,10 @@ li{
     margin: 0 50px;
 }
 
+li#ingredient-list{
+    margin: 0 70px
+}
+
 header h1 {
     font-family: 'Merriweather', serif;
     text-align: center;
@@ -63,7 +67,7 @@ main {
 }
 
 #recipe-list ul li:first-child {
-    margin-top: 5px;
+    margin-top: 20px;
 }
 
 
@@ -135,6 +139,7 @@ input{
     width: 60%;
     height: 40px;
     font-size: 18px;
+    text-align: center;
 }
 
 select{
@@ -165,8 +170,8 @@ input:focus, select:focus, button:focus {
 }
 
 #recipe-header h3 {
-    display: inline;
     margin-top: 0;
+    margin-bottom: 0;
 }
 
 #recipe-list #header {
@@ -181,16 +186,12 @@ input:focus, select:focus, button:focus {
     margin-top: 20px;
 }
 
-#ingredient-list:first-of-type {
-    margin-top: 20px;
+#recipes-loop h3{
+    cursor: pointer;
 }
 
-input.delete {
-    max-width: 34px;
-    height: auto;
-    margin-top: 0;
-    padding: 0;
-    margin-left: 10px;
+#ingredient-list:first-of-type {
+    margin-top: 20px;
 }
 
 
@@ -200,6 +201,11 @@ input.delete {
     align-items: flex-start;
     text-align: center;
     justify-content: center;
+}
+
+.fa-trash-alt{
+    margin: 4px 15px;
+    cursor: pointer;
 }
 
 #recipe-info, #reactive-recipe, #shopping-list{
@@ -229,6 +235,8 @@ input.delete {
 
 #update-button{
     width: 318px;
+    margin-bottom: 20px;
+    margin-top: 12px;
 }
 
 article#shopping-list ul {
@@ -284,6 +292,10 @@ article#shopping-list ul {
         margin: 0 0;
     }
 
+    li#ingredient-list{
+        margin: 0 0
+    }
+
     article#week-grid {
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -333,6 +345,7 @@ article#shopping-list ul {
 
     input, select {
         padding: 5px;
+        text-align: left;
     }
 
     input[type=number]{
@@ -346,20 +359,20 @@ article#shopping-list ul {
         text-align-last: left;
     }
 
-
-    input.delete {
-        max-width: 34px;
-        height: auto;
-        margin-left: 10px;
-    }
-
     #recipes-loop{
         list-style-position: outside;
     }
 
     #recipe-info{
         display: inline-block;
-        text-align: center;
+        text-align: left;
+    }
+
+    #recipe-header{
+        font-size: 22px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: left;
     }
 
     #new-weekday select {
@@ -376,6 +389,7 @@ article#shopping-list ul {
 
     #update-button{
         width: 234px;
+        margin-bottom: 20px;
     }
 
 }
