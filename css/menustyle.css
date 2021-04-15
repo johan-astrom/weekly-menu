@@ -259,7 +259,7 @@ article#shopping-list ul {
     margin-top: 30px;
 }
 
-.active-title h3 {
+h3.active-title {
     color: #A0A603;
 }
 
@@ -337,6 +337,7 @@ article#shopping-list ul {
 
     input[type=submit] {
         margin-bottom: 7px;
+        text-align: center;
     }
 
     form button, input[type=submit] {

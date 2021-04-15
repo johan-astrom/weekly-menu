@@ -15,30 +15,208 @@
   </header>
 
   <main>
-    <week-table :recipes="recipes" :weekdays="weekdays"></week-table>
-    <user-interactivity :recipes="recipes"
-                        :weekdays="weekdays"
-                        @save-recipe="saveRecipe"
-    ></user-interactivity>
+    <week-table></week-table>
+    <user-interactivity></user-interactivity>
   </main>
 
 </section>
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://unpkg.com/vuex@3.6.2/dist/vuex.js"></script>
 <script>
 
     let eventBus = new Vue()
 
-    Vue.component('week-table', {
-        props: {
-            recipes: {
-                type: Array,
-                required: true
+    const mapState = Vuex.mapState
+    const mapMutations = Vuex.mapMutations
+    const mapActions = Vuex.mapActions
+
+    const formData = {
+        state: {
+            title: '',
+            ingredientName: '',
+            ingredientQty: '',
+            ingredientWeight: '',
+            ingredients: [],
+            weekday: '',
+            image: '',
+            alt: ''
+        },
+        mutations: {
+            setTitle(state, title) {
+                state.title = title
             },
-            weekdays: {
-                type: Array,
-                required: true
+            setIngredientName(state, ingredientName) {
+                state.ingredientName = ingredientName
+            },
+            setIngredientQty(state, ingredientQty) {
+                state.ingredientQty = ingredientQty
+            },
+            setIngredientWeight(state, ingredientWeight) {
+                state.ingredientWeight = ingredientWeight
+            },
+            setIngredients(state, ingredients) {
+                state.ingredients = ingredients
+            },
+            setWeekday(state, weekday) {
+                state.weekday = weekday
+            },
+            setImage(state, image) {
+                state.image = image
+            },
+            setAlt(state, alt) {
+                state.alt = alt
             }
         },
+        actions: {
+            setToCurrent({commit, rootState}){
+                let recipe = rootState.currentRecipe
+
+                commit('setTitle', recipe.title)
+                commit('setIngredients', recipe.ingredients.slice())
+                commit('setWeekday', recipe.weekday)
+                commit('setImage', recipe.image)
+                commit('setAlt', recipe.alt)
+            }
+        }
+    }
+
+    const store = new Vuex.Store({
+        modules: {
+            formData: formData
+        },
+        state: {
+            weekdays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+            recipes: [],
+            currentRecipe: '',
+            hideAll: false,
+            showRecipe: false,
+            showRecipes: false,
+            showForm: false,
+            showRecipeSavedMsg: false,
+            showTodaysRecipe: false,
+            showShoppingList: false,
+            update: false,
+            assignedWeekday: ''
+        },
+        getters: {},
+        mutations: {
+            saveRecipe(state, recipe) {
+                state.recipes.push(recipe)
+                state.currentRecipe=''
+            },
+            deleteRecipe(state) {
+                let pos = state.recipes.indexOf(state.currentRecipe)
+                state.recipes.splice(pos, 1)
+                state.showTodaysRecipe = false
+                state.currentRecipe=''
+                console.log(state.currentRecipe.title)
+            },
+            updateRecipe(state){
+                state.showForm = true
+                state.update = true
+            },
+            saveRecipeUpdate(state, recipe){
+                let pos = state.recipes.indexOf(state.currentRecipe)
+                state.recipes[pos] = recipe
+            },
+            loadRecipes(state, recipes) {
+                state.recipes = recipes
+            },
+            updateRecipes(state) {
+                localStorage.setItem('recipes-array', JSON.stringify(state.recipes))
+            },
+            hideAll(state) {
+                state.showRecipe = false
+                state.showForm = false
+                state.showRecipeSavedMsg = false
+                state.showTodaysRecipe = false
+                state.showRecipes = false
+                state.showShoppingList = false
+                state.update = false
+            },
+            showRecipe(state, weekday) {
+                state.showTodaysRecipe = true
+                state.currentRecipe = state.recipes.find(x => x.weekday === weekday)
+            },
+            showRecipes(state) {
+                state.showRecipes = true
+            },
+            showShoppingList(state){
+                state.showShoppingList=true
+            },
+            setCurrentRecipe(state, recipe) {
+                state.currentRecipe = recipe
+            },
+            setAssignedWeekday(state, weekday){
+                state.assignedWeekday = weekday
+            },
+            removeDuplicates(state, recipe) {
+                for (let i = 0; i < state.recipes.length; i++) {
+                    if (state.recipes[i] !== recipe) {
+                        if (state.recipes[i].weekday === recipe.weekday) {
+                            state.recipes[i].weekday = ''
+                        }
+                    }
+                }
+            }
+        },
+        actions: {
+            saveRecipe({state, commit}, recipe) {
+                commit('saveRecipe', recipe)
+                commit('removeDuplicates', recipe)
+            },
+            loadRecipes({commit}) {
+                if (localStorage.getItem('recipes-array')) {
+                    let recipes = JSON.parse(localStorage.getItem('recipes-array'))
+                    commit('loadRecipes', recipes)
+                }
+            },
+            deleteRecipe({state, commit}) {
+                if (confirm('Are you sure you want to delete recipe: ' + state.currentRecipe.title + '?')) {
+                    commit('deleteRecipe')
+                    commit('updateRecipes')
+                }
+            },
+            updateRecipe({commit, state}) {
+                commit('hideAll')
+                commit('updateRecipe')
+            },
+            saveRecipeUpdate({commit}, recipe){
+                commit('saveRecipeUpdate', recipe)
+                commit('removeDuplicates', recipe)
+                commit('updateRecipes')
+            },
+            saveRecipeActions({state, commit}, recipe) {
+                commit('updateRecipes')
+                commit('removeDuplicates', recipe)
+                state.showForm = false
+                state.showRecipeSavedMsg = true
+            },
+            displayForm({state, commit}) {
+                commit('hideAll')
+                state.showForm = true
+                state.showRecipeSavedMsg = false
+            },
+            assignWeekday({state, commit}) {
+                if (state.assignedWeekday === '-- none --') {
+                    state.currentRecipe.weekday = ''
+                    state.currentRecipe.image = ''
+                    state.showTodaysRecipe=false
+                } else {
+                    state.currentRecipe.weekday = state.assignedWeekday
+                    state.currentRecipe.image = `img/${state.assignedWeekday}.jpg`
+                    commit('removeDuplicates', state.currentRecipe)
+                }
+                commit('updateRecipes')
+            },
+            changePurchased({state, commit}, ingredient){
+                ingredient.purchased = !ingredient.purchased
+                commit('updateRecipes')
+            }
+        }
+    })
+    //todo mappa så man slipper alla this.$store osv
+    Vue.component('week-table', {
         template: `
           <article id="week-grid">
           <h2 v-for="weekday in weekdays">{{ weekday }}</h2>
@@ -62,9 +240,12 @@
             }
         },
         methods: {
+            ...mapMutations([
+                'hideAll'
+            ]),
             showRecipe() {
-                eventBus.$emit('hide-others')
-                eventBus.$emit('show-recipe', this.hoveredWeekday)
+                this.$store.commit('hideAll')
+                this.$store.commit('showRecipe', this.hoveredWeekday)
             },
             position(recipe) {
                 switch (recipe.weekday) {
@@ -85,22 +266,15 @@
                 }
             }
         },
+        computed: mapState([
+            'recipes', 'weekdays'
+        ])/*,
         mounted() {
             eventBus.$on('hide-others', () => this.displayRecipe = false)
-        }
+        }*/
     })
 
     Vue.component('user-interactivity', {
-        props: {
-            recipes: {
-                type: Array,
-                required: true
-            },
-            weekdays: {
-                type: Array,
-                required: true
-            }
-        },
         template: `
           <section id="user-interactivity">
           <article id="optionButtons">
@@ -118,7 +292,7 @@
             <p><input id="title"
                       name="title"
                       required
-                      v-model="title"/></p>
+                      v-model="title"></p>
             <p><label for="ingredients">Enter an ingredient:</label></p>
             <p><input id="ingredients"
                       name="ingredients"
@@ -165,50 +339,32 @@
                 <li v-for="(ingredient, index) in ingredients"
                     :key="index">
                   {{ ingredient.ingredientName }} : {{ ingredient.ingredientQty }}{{ ingredient.ingredientWeight }}
-                  <input type="image"
-                         src="img/icon/outline_delete_black_24dp.png"
-                         alt="delete"
-                         class="delete"
-                         title="remove ingredient"
-                         @click="removeIngredient(index)">
+                  <i class="far fa-trash-alt"
+                     title="remove ingredient"
+                     @click="removeIngredient"></i>
                 </li>
               </ul>
             </article>
           </div>
           <section id="display">
-            <todays-recipe :recipes="recipes"
-                           :weekdays="weekdays"
-                           :remove-duplicates="removeDuplicates"></todays-recipe>
-            <recipe-list :recipes="recipes" :weekdays="weekdays" :remove-duplicates="removeDuplicates"></recipe-list>
-            <shopping-list :recipes="recipes"></shopping-list>
+            <todays-recipe></todays-recipe>
+            <recipe-list></recipe-list>
+            <shopping-list></shopping-list>
           </section>
           </section>
         `,
         data() {
             return {
-                showForm: false,
-                showRecipeSavedMsg: false,
                 showIngredientError: false,
-                showRecipeBtn: true,
-                showShoppingListBtn: true,
-                update: false,
-                updateIndex: 0,
-                title: '',
-                ingredientName: '',
-                ingredientQty: '',
-                ingredientWeight: '',
-                ingredients: [],
-                weekday: '',
-                image: '',
-                alt: ''
             }
         },
         methods: {
-            displayForm() {
-                eventBus.$emit('hide-others')
-                this.showForm = true
-                this.showRecipeSavedMsg = false
-            },
+            ...mapActions([
+                'saveRecipe', 'saveRecipeActions', 'displayForm', 'saveRecipeUpdate'
+            ]),
+            ...mapMutations([
+                'hideAll', 'showRecipe', 'showRecipes', 'showShoppingList', 'removeDuplicates'
+            ]),
             addIngredient() {
                 if (!(this.ingredientWeight && this.ingredientQty)
                     && this.ingredientName) {
@@ -237,30 +393,20 @@
                     alt: this.weekday,
                 }
                 if (this.update) {
-                    this.recipes[this.updateIndex] = recipe
+                    this.saveRecipeUpdate(recipe)
                 } else {
-                    this.$emit('save-recipe', recipe)
+                    this.saveRecipe(recipe)
                 }
-                eventBus.$emit('update-recipes')
-                this.removeDuplicates(recipe)
+                this.saveRecipeActions(recipe)
                 this.clearForm()
-                this.showRecipeSavedMsg = true
-            },
-            removeDuplicates(recipe) {
-                for (let i = 0; i < this.recipes.length; i++) {
-                    if (this.recipes[i] !== recipe) {
-                        if (this.recipes[i].weekday === recipe.weekday) {
-                            this.recipes[i].weekday = ''
-                        }
-                    }
-                }
             },
             clearForm() {
                 this.ingredients = []
                 this.title = ''
                 this.weekday = ''
-                this.showForm = false
                 this.clearIngredients()
+                this.$store.commit('hideAll')
+                this.$store.commit('setCurrentRecipe', '')
             },
             clearIngredients() {
                 this.ingredientQty = ''
@@ -269,30 +415,93 @@
                 this.showIngredientError = false
             },
             displayRecipes() {
-                eventBus.$emit('hide-others')
-                eventBus.$emit('show-recipes')
-                this.showRecipeBtn = false
+                this.hideAll()
+                this.showRecipes()
             },
             displayShoppingList() {
-                eventBus.$emit('hide-others')
-                eventBus.$emit('show-shoppinglist')
-                this.showShoppingListBtn = false
+                this.hideAll()
+                this.showShoppingList()
             }
         },
         computed: {
+            ...mapState([
+                'recipes', 'weekdays', 'currentRecipe', 'update', 'showForm', 'showRecipeSavedMsg', 'currentRecipe'
+            ]),
             renderImgString() {
                 if (this.weekday) {
                     return `img/${this.weekday}.jpg`
                 } else return ''
+            },
+            title: {
+                get() {
+                    return this.$store.state.formData.title
+                },
+                set(title) {
+                    this.$store.commit('setTitle', title)
+                }
+            },
+            ingredientName: {
+                get() {
+                    return this.$store.state.formData.ingredientName
+                },
+                set(ingredientName) {
+                    this.$store.commit('setIngredientName', ingredientName)
+                }
+            },
+            ingredientQty: {
+                get() {
+                    return this.$store.state.formData.ingredientQty
+                },
+                set(ingredientQty) {
+                    this.$store.commit('setIngredientQty', ingredientQty)
+                }
+            },
+            ingredientWeight: {
+                get() {
+                    return this.$store.state.formData.ingredientWeight
+                },
+                set(ingredientWeight) {
+                    this.$store.commit('setIngredientWeight', ingredientWeight)
+                }
+            },
+            ingredients: {
+                get() {
+                    return this.$store.state.formData.ingredients
+                },
+                set(ingredients) {
+                    this.$store.commit('setIngredients', ingredients)
+                }
+            },
+            weekday: {
+                get() {
+                    return this.$store.state.formData.weekday
+                },
+                set(weekday) {
+                    this.$store.commit('setWeekday', weekday)
+                }
+            },
+            image: {
+                get() {
+                    return this.$store.state.formData.image
+                },
+                set(image) {
+                    this.$store.commit('setImage', image)
+                }
+            },
+            alt: {
+                get() {
+                    return this.$store.state.formData.alt
+                },
+                set(alt) {
+                    this.$store.commit('setAlt', alt)
+                }
             }
-        },
+        }/*,
         mounted() {
             eventBus.$on('hide-others', () => {
                 this.showForm = false
                 this.showRecipeSavedMsg = false
                 this.showTodaysRecipe = false
-                this.showRecipeBtn = true
-                this.showShoppingListBtn = true
                 this.update = false
             })
             eventBus.$on('update-recipe', (index) => {
@@ -305,75 +514,35 @@
                 this.ingredients = recipe.ingredients
                 this.updateIndex = index
             })
-        }
+            }*/
     })
 
     Vue.component('todays-recipe', {
-        props: {
-            recipes: {
-                type: Array,
-                required: true
-            },
-            weekdays: {
-                type: Array,
-                required: true
-            },
-            removeDuplicates: {
-                type: Function,
-                required: true
-            }
-        },
         template: `
           <article v-show="showTodaysRecipe" id="todays-recipe">
-          <recipe-info
-              :weekdays="weekdays"
-              :recipes="recipes"
-              :recipe="todaysRecipe"
-              :remove-duplicates="removeDuplicates"
-              :index="recipes.indexOf(todaysRecipe)"
-              :selected-index="recipes.indexOf(todaysRecipe)"
-          ></recipe-info>
+          <recipe-info :recipe="currentRecipe"></recipe-info>
           </article>
         `,
         data() {
-            return {
-                showTodaysRecipe: false,
-                todaysRecipe: ''
-            }
+            return {}
         },
         methods: {
-            displayTodaysRecipe(weekday) {
-                this.showTodaysRecipe = true
-                this.todaysRecipe = this.recipes.find(x => x.weekday === weekday)
-            },
-            updateRecipe() {
-                eventBus.$emit('hide-others')
-                eventBus.$emit('update-recipe', this.recipes.indexOf(this.todaysRecipe))
-            }
+            ...mapMutations([
+                'removeDuplicates', 'hideAll'
+            ])
         },
+        computed: mapState([
+            'recipes', 'weekdays', 'showTodaysRecipe', 'currentRecipe'
+        ])/*,
         mounted() {
             eventBus.$on('hide-others', () => this.showTodaysRecipe = false)
             eventBus.$on('show-recipe', (weekday) => this.displayTodaysRecipe(weekday))
             eventBus.$on('recipe-deletion', () => this.showTodaysRecipe = false)
 
-        }
+        }*/
     })
-
+    //Todo kom ihåg att ta bort alla prop bindings
     Vue.component('recipe-list', {
-        props: {
-            recipes: {
-                type: Array,
-                required: true
-            },
-            weekdays: {
-                type: Array,
-                required: true
-            },
-            removeDuplicates: {
-                type: Function,
-                required: true
-            }
-        },
         template: `
           <section id="recipe-list" v-show="showRecipes">
           <button id="hide-recipes" @click="hideRecipes">Hide recipes</button>
@@ -384,34 +553,29 @@
           <ul v-else id="recipe-parent-list">
             <li id="recipes-loop"
                 v-for="(recipe, index) in recipes"
-                :key="index"
-                @click="selectedIndex = index"
-                :class="{'active-title': selectedIndex === index}">
+                :key="index">
               <recipe-info
-                  :remove-duplicates="removeDuplicates"
-                  :weekdays="weekdays"
-                  :recipes="recipes"
                   :recipe="recipe"
-                  :index="index"
-                  :selected-index="selectedIndex"></recipe-info>
+              ></recipe-info>
 
             </li>
           </ul>
           </section>
         `,
         data() {
-            return {
-                showRecipes: false,
-                selectedIndex: ''
-            }
+            return {}
         },
         methods: {
+            ...mapMutations([
+                'removeDuplicates', 'setCurrentRecipe'
+            ]),
             hideRecipes() {
-                this.showRecipes = false
-                this.selectedIndex = ''
-                eventBus.$emit('hide-others')
+                this.$store.commit('hideAll')
             }
         },
+        computed: mapState([
+            'recipes', 'weekdays', 'showRecipes'
+        ])/*,
         mounted() {
             eventBus.$on('hide-others', () => {
                 this.showRecipes = false
@@ -419,46 +583,28 @@
             })
             eventBus.$on('update-recipes', () => this.selectedIndex = '')
             eventBus.$on('show-recipes', () => this.showRecipes = true)
-        }
+        }*/
     })
 
-    //todo selectedIndex kvar vid delete
     Vue.component('recipe-info', {
         props: {
             recipe: {
-                type: Object,
-                required: true
-            },
-            recipes: {
-                type: Array,
-                required: true
-            },
-            weekdays: {
-                type: Array,
-                required: true
-            },
-            removeDuplicates: {
-                type: Function,
-                required: true
-            },
-            index: {
-                required: true
-            },
-            selectedIndex: {
                 required: true
             }
         },
         template:
-                `
+            `
                   <article id="recipe-info">
                   <div id="recipe-header">
-                    <h3>{{ recipe.title }}</h3>
+                    <h3 @click="setCurrentRecipe(recipe)"
+                        :class="{'active-title': currentRecipe === recipe}"
+                    >{{ recipe.title }}</h3>
                     <i class="far fa-trash-alt"
                        title="delete recipe"
-                       v-show="selectedIndex === index"
+                       v-show="currentRecipe === recipe"
                        @click="deleteRecipe"></i>
                   </div>
-                  <div v-show="selectedIndex === index">
+                  <div v-show="currentRecipe === recipe">
                     <ul>
                       <li id="ingredient-list"
                           v-for="(ingredient, index) in recipe.ingredients"
@@ -467,10 +613,7 @@
                         {{ ingredient.ingredientWeight }}
                       </li>
                     </ul>
-                    <change-weekday :weekdays="weekdays"
-                                    :remove-duplicates="removeDuplicates"
-                                    :recipe="recipe"
-                                    :assigned-weekday="recipe.weekday"></change-weekday>
+                    <change-weekday></change-weekday>
                     <button id="update-button" @click="updateRecipe">Update recipe info</button>
                   </div>
                   </article>
@@ -479,46 +622,32 @@
             return {}
         },
         methods: {
-            deleteRecipe() {
-                if (confirm('Are you sure you want to delete recipe: ' + this.recipes[this.selectedIndex].title + '?')) {
-                    this.recipes.splice(this.selectedIndex, 1)
-                    eventBus.$emit('update-recipes')
-                    eventBus.$emit('recipe-deletion')
-                }
+            ...mapMutations([
+                'removeDuplicates'
+            ]),
+            ...mapActions([
+                'deleteRecipe'
+            ]),
+            updateRecipe(){
+                this.$store.dispatch('setToCurrent')
+                this.$store.dispatch('updateRecipe')
             },
-            updateRecipe() {
-                let index = this.selectedIndex
-                eventBus.$emit('hide-others')
-                eventBus.$emit('update-recipe', index)
+            setCurrentRecipe(recipe) {
+                this.$store.commit('setCurrentRecipe', recipe)
             }
-        }
+        },
+        computed: mapState([
+            'recipes', 'currentRecipe', 'weekdays'
+        ])
     })
 
     Vue.component('change-weekday', {
-        props: {
-            weekdays: {
-                type: Array,
-                required: true
-            },
-            recipe: {
-                type: Object,
-                required: false
-            },
-            removeDuplicates: {
-                type: Function,
-                required: true
-            },
-            assignedWeekday: {
-                type: String,
-                required: true
-            }
-        },
         template: `
           <div id="new-weekday">
-          <h4 v-if="recipe.weekday">Change weekday:</h4>
+          <h4 v-if="currentRecipe.weekday">Change weekday:</h4>
           <h4 v-else>Assign to weekday:</h4>
           <select id="new-weekday-select" name="new-weekday-select" v-model="assignedWeekday">
-            <option v-if="recipe.weekday">-- none --</option>
+            <option v-if="currentRecipe.weekday">-- none --</option>
             <option v-for="(weekday, index) in weekdays"
                     :key="index">{{ weekday }}
             </option>
@@ -530,31 +659,32 @@
             return {}
         },
         methods: {
-            assignWeekday() {
-                if (this.assignedWeekday === '-- none --') {
-                    this.recipe.weekday = ''
-                    this.recipe.image = ''
-                    eventBus.$emit('hide-others')
-                } else {
-                    this.recipe.weekday = this.assignedWeekday
-                    this.recipe.image = `img/${this.assignedWeekday}.jpg`
-                    this.removeDuplicates(this.recipe)
+            ...mapMutations([
+                'removeDuplicates'
+            ]),
+            ...mapActions([
+                'assignWeekday'
+            ])
+        },
+        computed: {
+            ...mapState([
+                'weekdays', 'currentRecipe'
+            ]),
+            assignedWeekday: {
+                get(){
+                    return this.$store.state.currentRecipe.weekday
+                },
+                set(weekday){
+                    this.$store.commit('setAssignedWeekday', weekday)
                 }
-                eventBus.$emit('update-recipes')
             }
         }
     })
 
     Vue.component('shopping-list', {
-        props: {
-            recipes: {
-                type: Array,
-                required: true
-            }
-        },
         template: `
           <article id="shopping-list" v-show="showShoppingList">
-          <button id="hide-shoppinglist" @click="hideShoppingList">Hide shopping list</button>
+          <button id="hide-shoppinglist" @click="hideAll">Hide shopping list</button>
           <h2>This week's shopping list:</h2>
           <ul v-for="(recipe, index) in recipes"
               :key="index"
@@ -582,45 +712,32 @@
         `,
         data() {
             return {
-                showShoppingList: false,
-                isDone: new Array(100),
                 hoveredItem: ''
             }
         },
         methods: {
-            hideShoppingList() {
-                this.showShoppingList = false
-                eventBus.$emit('hide-others')
-            },
-            changePurchased(ingredient) {
-                ingredient.purchased = !ingredient.purchased
-                eventBus.$emit('update-recipes')
-            }
+            ...mapMutations([
+                'hideAll'
+            ]),
+            ...mapActions([
+                'changePurchased'
+            ])
         },
+        computed: mapState([
+            'recipes', 'showShoppingList'
+        ])/*,
         mounted() {
             eventBus.$on('hide-others', () => this.showShoppingList = false)
             eventBus.$on('show-shoppinglist', () => this.showShoppingList = true)
-        }
+        }*/
     })
 
     let app = new Vue({
         el: '#app',
-        data: {
-            weekdays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-            recipes: []
-        },
-        methods: {
-            saveRecipe(recipe) {
-                this.recipes.push(recipe)
-            }
-        },
+        store,
+        data: {},
         mounted() {
-            if (localStorage.getItem('recipes-array')) {
-                this.recipes = JSON.parse(localStorage.getItem('recipes-array'))
-            }
-            eventBus.$on('update-recipes', () => {
-                localStorage.setItem('recipes-array', JSON.stringify(this.recipes))
-            })
+            this.$store.dispatch('loadRecipes')
         }
     })
 </script>
