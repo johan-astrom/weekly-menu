@@ -109,7 +109,6 @@
                 state.recipes.splice(pos, 1)
                 state.showTodaysRecipe = false
                 state.currentRecipe = ''
-                console.log(state.currentRecipe.title)
             },
             updateRecipe(state) {
                 state.showForm = true
@@ -169,6 +168,16 @@
             displayRecipeSavedMsg(state){
                 state.showForm = false
                 state.showRecipeSavedMsg = true
+            },
+            assignWeekday(state){
+                if (state.assignedWeekday === '-- none --') {
+                    state.currentRecipe.weekday = ''
+                    state.currentRecipe.image = ''
+                    state.showTodaysRecipe = false
+                } else {
+                    state.currentRecipe.weekday = state.assignedWeekday
+                    state.currentRecipe.image = `img/${state.assignedWeekday}.jpg`
+                }
             }
         },
         actions: {
@@ -207,13 +216,8 @@
                 commit('displayForm')
             },
             assignWeekday({state, commit}) {
-                if (state.assignedWeekday === '-- none --') {
-                    state.currentRecipe.weekday = ''
-                    state.currentRecipe.image = ''
-                    state.showTodaysRecipe = false
-                } else {
-                    state.currentRecipe.weekday = state.assignedWeekday
-                    state.currentRecipe.image = `img/${state.assignedWeekday}.jpg`
+                commit('assignWeekday')
+                if (state.assignedWeekday !== '-- none --') {
                     commit('removeDuplicates', state.currentRecipe)
                 }
                 commit('updateRecipes')
