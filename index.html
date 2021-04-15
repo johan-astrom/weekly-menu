@@ -368,11 +368,15 @@
         },
         methods: {
             ...mapActions([
-                'saveRecipe', 'saveRecipeActions', 'displayForm', 'saveRecipeUpdate'
+                'saveRecipe', 'saveRecipeActions', 'saveRecipeUpdate'
             ]),
             ...mapMutations([
                 'hideAll', 'showRecipe', 'showRecipes', 'showShoppingList', 'removeDuplicates', 'setCurrentRecipe'
             ]),
+            displayForm(){
+                this.clearForm()
+                this.$store.dispatch('displayForm')
+            },
             addIngredient() {
                 if (!(this.ingredientWeight && this.ingredientQty)
                     && this.ingredientName) {
@@ -413,6 +417,7 @@
                 this.weekday = ''
                 this.clearIngredients()
                 this.setCurrentRecipe('')
+                this.hideAll()
             },
             clearIngredients() {
                 this.ingredientQty = ''

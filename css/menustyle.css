@@ -159,6 +159,10 @@ input:focus, select:focus, button:focus {
     border-color: #F2CEAE;
 }
 
+input[type=number]{
+    width: 80px;
+}
+
 .dualOptions {
     color: lightgray;
     border-color: lightgray;
