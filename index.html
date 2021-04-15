@@ -68,7 +68,7 @@
             }
         },
         actions: {
-            setToCurrent({commit, rootState}){
+            setToCurrent({commit, rootState}) {
                 let recipe = rootState.currentRecipe
 
                 commit('setTitle', recipe.title)
@@ -102,20 +102,20 @@
         mutations: {
             saveRecipe(state, recipe) {
                 state.recipes.push(recipe)
-                state.currentRecipe=''
+                state.currentRecipe = ''
             },
             deleteRecipe(state) {
                 let pos = state.recipes.indexOf(state.currentRecipe)
                 state.recipes.splice(pos, 1)
                 state.showTodaysRecipe = false
-                state.currentRecipe=''
+                state.currentRecipe = ''
                 console.log(state.currentRecipe.title)
             },
-            updateRecipe(state){
+            updateRecipe(state) {
                 state.showForm = true
                 state.update = true
             },
-            saveRecipeUpdate(state, recipe){
+            saveRecipeUpdate(state, recipe) {
                 let pos = state.recipes.indexOf(state.currentRecipe)
                 state.recipes[pos] = recipe
             },
@@ -141,13 +141,13 @@
             showRecipes(state) {
                 state.showRecipes = true
             },
-            showShoppingList(state){
-                state.showShoppingList=true
+            showShoppingList(state) {
+                state.showShoppingList = true
             },
             setCurrentRecipe(state, recipe) {
                 state.currentRecipe = recipe
             },
-            setAssignedWeekday(state, weekday){
+            setAssignedWeekday(state, weekday) {
                 state.assignedWeekday = weekday
             },
             removeDuplicates(state, recipe) {
@@ -158,6 +158,17 @@
                         }
                     }
                 }
+            },
+            changePurchased(state, ingredient) {
+                ingredient.purchased = !ingredient.purchased
+            },
+            displayForm(state){
+                state.showForm = true
+                state.showRecipeSavedMsg = false
+            },
+            displayRecipeSavedMsg(state){
+                state.showForm = false
+                state.showRecipeSavedMsg = true
             }
         },
         actions: {
@@ -181,7 +192,7 @@
                 commit('hideAll')
                 commit('updateRecipe')
             },
-            saveRecipeUpdate({commit}, recipe){
+            saveRecipeUpdate({commit}, recipe) {
                 commit('saveRecipeUpdate', recipe)
                 commit('removeDuplicates', recipe)
                 commit('updateRecipes')
@@ -189,19 +200,17 @@
             saveRecipeActions({state, commit}, recipe) {
                 commit('updateRecipes')
                 commit('removeDuplicates', recipe)
-                state.showForm = false
-                state.showRecipeSavedMsg = true
+                commit('displayRecipeSavedMsg')
             },
-            displayForm({state, commit}) {
+            displayForm({commit}) {
                 commit('hideAll')
-                state.showForm = true
-                state.showRecipeSavedMsg = false
+                commit('displayForm')
             },
             assignWeekday({state, commit}) {
                 if (state.assignedWeekday === '-- none --') {
                     state.currentRecipe.weekday = ''
                     state.currentRecipe.image = ''
-                    state.showTodaysRecipe=false
+                    state.showTodaysRecipe = false
                 } else {
                     state.currentRecipe.weekday = state.assignedWeekday
                     state.currentRecipe.image = `img/${state.assignedWeekday}.jpg`
@@ -209,8 +218,8 @@
                 }
                 commit('updateRecipes')
             },
-            changePurchased({state, commit}, ingredient){
-                ingredient.purchased = !ingredient.purchased
+            changePurchased({commit}, ingredient) {
+                commit('changePurchased', ingredient)
                 commit('updateRecipes')
             }
         }
@@ -243,7 +252,7 @@
             ]),
             showRecipe() {
                 this.hideAll()
-                this.$store.commit('showRecipe',this.hoveredWeekday)
+                this.$store.commit('showRecipe', this.hoveredWeekday)
             },
             position(recipe) {
                 switch (recipe.weekday) {
@@ -399,8 +408,7 @@
                 this.title = ''
                 this.weekday = ''
                 this.clearIngredients()
-                this.$store.commit('hideAll')
-                this.$store.commit('setCurrentRecipe', '')
+                this.setCurrentRecipe('')
             },
             clearIngredients() {
                 this.ingredientQty = ''
@@ -555,7 +563,7 @@
             }
         },
         template:
-            `
+                `
                   <article id="recipe-info">
                   <div id="recipe-header">
                     <h3 @click="setCurrentRecipe(recipe)"
@@ -590,7 +598,7 @@
             ...mapActions([
                 'deleteRecipe'
             ]),
-            updateRecipe(){
+            updateRecipe() {
                 this.$store.dispatch('setToCurrent')
                 this.$store.dispatch('updateRecipe')
             },
@@ -633,10 +641,10 @@
                 'weekdays', 'currentRecipe'
             ]),
             assignedWeekday: {
-                get(){
+                get() {
                     return this.$store.state.currentRecipe.weekday
                 },
-                set(weekday){
+                set(weekday) {
                     this.$store.commit('setAssignedWeekday', weekday)
                 }
             }
