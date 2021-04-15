@@ -215,7 +215,6 @@
             }
         }
     })
-    //todo mappa så man slipper alla this.$store osv
     Vue.component('week-table', {
         template: `
           <article id="week-grid">
@@ -236,7 +235,6 @@
         data() {
             return {
                 hoveredWeekday: '',
-                displayRecipe: false
             }
         },
         methods: {
@@ -244,8 +242,8 @@
                 'hideAll'
             ]),
             showRecipe() {
-                this.$store.commit('hideAll')
-                this.$store.commit('showRecipe', this.hoveredWeekday)
+                this.hideAll()
+                this.$store.commit('showRecipe',this.hoveredWeekday)
             },
             position(recipe) {
                 switch (recipe.weekday) {
@@ -268,10 +266,7 @@
         },
         computed: mapState([
             'recipes', 'weekdays'
-        ])/*,
-        mounted() {
-            eventBus.$on('hide-others', () => this.displayRecipe = false)
-        }*/
+        ])
     })
 
     Vue.component('user-interactivity', {
@@ -363,7 +358,7 @@
                 'saveRecipe', 'saveRecipeActions', 'displayForm', 'saveRecipeUpdate'
             ]),
             ...mapMutations([
-                'hideAll', 'showRecipe', 'showRecipes', 'showShoppingList', 'removeDuplicates'
+                'hideAll', 'showRecipe', 'showRecipes', 'showShoppingList', 'removeDuplicates', 'setCurrentRecipe'
             ]),
             addIngredient() {
                 if (!(this.ingredientWeight && this.ingredientQty)
@@ -383,7 +378,6 @@
             removeIngredient(index) {
                 this.ingredients.splice(index, 1)
             },
-            //todo Gör så man kan välja vecka.
             addRecipe() {
                 let recipe = {
                     title: this.title,
@@ -415,6 +409,7 @@
                 this.showIngredientError = false
             },
             displayRecipes() {
+                this.setCurrentRecipe('')
                 this.hideAll()
                 this.showRecipes()
             },
@@ -496,25 +491,7 @@
                     this.$store.commit('setAlt', alt)
                 }
             }
-        }/*,
-        mounted() {
-            eventBus.$on('hide-others', () => {
-                this.showForm = false
-                this.showRecipeSavedMsg = false
-                this.showTodaysRecipe = false
-                this.update = false
-            })
-            eventBus.$on('update-recipe', (index) => {
-                this.showForm = true
-                this.update = true
-
-                let recipe = this.recipes[index]
-                this.title = recipe.title
-                this.weekday = recipe.weekday
-                this.ingredients = recipe.ingredients
-                this.updateIndex = index
-            })
-            }*/
+        }
     })
 
     Vue.component('todays-recipe', {
@@ -533,15 +510,8 @@
         },
         computed: mapState([
             'recipes', 'weekdays', 'showTodaysRecipe', 'currentRecipe'
-        ])/*,
-        mounted() {
-            eventBus.$on('hide-others', () => this.showTodaysRecipe = false)
-            eventBus.$on('show-recipe', (weekday) => this.displayTodaysRecipe(weekday))
-            eventBus.$on('recipe-deletion', () => this.showTodaysRecipe = false)
-
-        }*/
+        ])
     })
-    //Todo kom ihåg att ta bort alla prop bindings
     Vue.component('recipe-list', {
         template: `
           <section id="recipe-list" v-show="showRecipes">
@@ -575,15 +545,7 @@
         },
         computed: mapState([
             'recipes', 'weekdays', 'showRecipes'
-        ])/*,
-        mounted() {
-            eventBus.$on('hide-others', () => {
-                this.showRecipes = false
-                this.selectedIndex = ''
-            })
-            eventBus.$on('update-recipes', () => this.selectedIndex = '')
-            eventBus.$on('show-recipes', () => this.showRecipes = true)
-        }*/
+        ])
     })
 
     Vue.component('recipe-info', {
@@ -725,11 +687,7 @@
         },
         computed: mapState([
             'recipes', 'showShoppingList'
-        ])/*,
-        mounted() {
-            eventBus.$on('hide-others', () => this.showShoppingList = false)
-            eventBus.$on('show-shoppinglist', () => this.showShoppingList = true)
-        }*/
+        ])
     })
 
     let app = new Vue({
