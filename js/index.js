@@ -380,8 +380,8 @@ Vue.component('user-interactivity', {
             } else {
                 this.saveRecipe(recipe)
             }
-            this.saveRecipeActions(recipe)
             this.clearForm()
+            this.saveRecipeActions(recipe)
         },
         clearForm() {
             this.ingredients = []
